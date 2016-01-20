@@ -52,12 +52,12 @@ def jp2a_cvars_into_file(env, file_out, var_name, image_filename, jp2a_args):
                 print(line, file=sys.stderr)
                 success = False
 
-            #END if line!=""
+            #END if line != ""
 
         #END for
             
         for line in data[0].decode().split('\n'):
-            if line!="":
+            if line != "":
                 if first_line:
                     file_out.write("const char* "+var_name+"= \"\\\n"+line.rstrip()+"\\n\\\n")
                     first_line = False
@@ -90,7 +90,6 @@ c_headers="""
 """
     
 c_program="""
-
 WINDOW * mainwin = 0;
 
 void cleanup()
@@ -103,15 +102,15 @@ void cleanup()
     }
 }
 
-void signal_handler(int s){
+void signal_handler(int s)
+{
     cleanup();
     exit(EXIT_SUCCESS);
-
 }
 
 
-int main(int argc, char *argv[]) {
-
+int main(int argc, char *argv[]) 
+{
 
     struct sigaction sigIntHandler;
 
@@ -137,13 +136,13 @@ int main(int argc, char *argv[]) {
     
     
 
-    int frame=0;
+    int frame = 0;
 
-    nodelay(mainwin,1);
+    nodelay(mainwin, 1);
 
     while(true) 
     {
-        if(getch()==27)
+        if(getch() == 27)
         {
             break;
         }
@@ -163,8 +162,6 @@ int main(int argc, char *argv[]) {
 
     return EXIT_SUCCESS;
 }
-    
-
 """
 
 
@@ -203,7 +200,7 @@ def main(argv = sys.argv):
     
     with tempfile.TemporaryDirectory() as work_dir:
     
-        cnvrt=["convert", "-coalesce", in_file, os.path.join(work_dir, "%d.jpg")]
+        cnvrt = ["convert", "-coalesce", in_file, os.path.join(work_dir, "%d.jpg")]
 
         subprocess.call(cnvrt);
     
@@ -239,7 +236,7 @@ def main(argv = sys.argv):
 
         #END with open(program_file,"w")
 
-        compiler=["cc", program_file, "-o", out_file, "-lcurses"]
+        compiler = ["cc", program_file, "-o", out_file, "-lcurses"]
         subprocess.call(compiler)
 
         return 0
