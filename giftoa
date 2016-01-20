@@ -36,18 +36,22 @@ note:
 
 def jp2a_cvars_into_file(env,file_out,var_name,image_filename,jp2a_args):
     
-    jp2a=["jp2a",image_filename]
+    jp2a = ["jp2a", image_filename]
     jp2a.extend(jp2a_args)
-    success=True
-    first_line=True
+
+    success = True
+    first_line = True
 
 
     with subprocess.Popen(jp2a,stdout=subprocess.PIPE,stderr=subprocess.PIPE,env=env) as p:
+
         data=p.communicate()
+
         for line in data[1].decode().split('\n'):
-            if line!="":
-                print(line,file=sys.stderr)
-                success=False
+            if line != "":
+                print(line, file=sys.stderr)
+                success = False
+
             #END if line!=""
 
         #END for
@@ -56,14 +60,15 @@ def jp2a_cvars_into_file(env,file_out,var_name,image_filename,jp2a_args):
             if line!="":
                 if first_line:
                     file_out.write("const char* "+var_name+"= \"\\\n"+line.rstrip()+"\\n\\\n")
-                    first_line=False
+                    first_line = False
                 else:
                     file_out.write(line.rstrip()+"\\n\\\n")
                 #END else
 
-            #END if line!=""
+            #END if line != ""
 
         #END for
+
         file_out.write("\";\n\n")
 
     #END with	
@@ -86,20 +91,21 @@ c_headers="""
     
 c_program="""
 
-WINDOW * mainwin=0;
+WINDOW * mainwin = 0;
 
-void cleanup(){
-       if(mainwin!=0){
+void cleanup()
+{
+    if(mainwin!=0)
+    {
         delwin(mainwin);
         endwin();
         refresh();
-      
-       }
+    }
 }
 
 void signal_handler(int s){
-       cleanup();
-           exit(EXIT_SUCCESS);
+    cleanup();
+    exit(EXIT_SUCCESS);
 
 }
 
@@ -107,13 +113,13 @@ void signal_handler(int s){
 int main(int argc, char *argv[]) {
 
 
-   struct sigaction sigIntHandler;
+    struct sigaction sigIntHandler;
 
-   sigIntHandler.sa_handler = signal_handler;
-   sigemptyset(&sigIntHandler.sa_mask);
-   sigIntHandler.sa_flags = 0;
+    sigIntHandler.sa_handler = signal_handler;
+    sigemptyset(&sigIntHandler.sa_mask);
+    sigIntHandler.sa_flags = 0;
 
-   sigaction(SIGINT, &sigIntHandler, NULL);
+    sigaction(SIGINT, &sigIntHandler, NULL);
 
 
     
@@ -125,8 +131,8 @@ int main(int argc, char *argv[]) {
     }
     
     
-    const char * frames[]=FRAMES_INIT;
-    int framecnt=sizeof(frames)/sizeof(const char*);
+    const char * frames[] = FRAMES_INIT;
+    int framecnt = sizeof(frames) / sizeof(const char*);
     
     
     
@@ -135,16 +141,20 @@ int main(int argc, char *argv[]) {
 
     nodelay(mainwin,1);
 
-    while(true) {
-        if(getch()==27){
+    while(true) 
+    {
+        if(getch()==27)
+        {
             break;
         }
+
         clear();
 
         mvaddstr(0, 0, frames[frame]);
         refresh();
         usleep(framesleep);
-        frame = frame==framecnt-1?0:frame+1;
+
+        frame = frame == framecnt-1 ? 0 : frame+1;
     }
 
 
@@ -160,18 +170,21 @@ int main(int argc, char *argv[]) {
 
 def main(argv=sys.argv):
     
-    if len(argv)==1:
-        usage();
+    if len(argv) == 1:
+        usage()
         return 1
     else:
-        args_rest=2;
-        in_file=argv[1]
-        out_file=""
-        if len(argv)>3 and argv[2]=="-o":
-            args_rest=4
-            out_file=argv[3]
+
+        args_rest = 2
+        in_file = argv[1]
+        out_file = ""
+
+        if len(argv) > 3 and argv[2] == "-o":
+            args_rest = 4
+            out_file = argv[3]
         else:
-            out_file=os.path.splitext(os.path.basename(argv[1]))[0]
+            out_file = os.path.splitext(os.path.basename(argv[1]))[0]
+
         #END else
 
     #END else
@@ -185,33 +198,39 @@ def main(argv=sys.argv):
  
  
     env = os.environ.copy()
-    if "TERM" not in env: env["TERM"]='xterm'
+
+    if "TERM" not in env: env["TERM"] = 'xterm'
     
     with tempfile.TemporaryDirectory() as work_dir:
     
-        cnvrt=["convert", "-coalesce", in_file, os.path.join(work_dir,"%d.jpg")]
+        cnvrt=["convert", "-coalesce", in_file, os.path.join(work_dir, "%d.jpg")]
+
         subprocess.call(cnvrt);
     
-        images=sorted(os.listdir(work_dir),key=natural_sort_key)
-        program_file=os.path.join(work_dir,"program.c")
+        images = sorted(os.listdir(work_dir), key=natural_sort_key)
+
+        program_file = os.path.join(work_dir, "program.c")
         
-        with open(program_file,"w") as file:
-            frames=[]
-            frame=0
+        with open(program_file, "w") as file:
+
+            frames = []
+            frame = 0
+
             file.write(c_headers)
             
             for image in images:
+
                 frames.append("frame_"+str(frame))
                 
-                success=jp2a_cvars_into_file(env=env,
-                                           file_out=file,
-                                           var_name="frame_"+str(frame),
-                                           image_filename=work_dir+"/"+image,
-                                           jp2a_args=argv[args_rest:])
+                success = jp2a_cvars_into_file(env=env,
+                                               file_out=file,
+                                               var_name="frame_"+str(frame),
+                                               image_filename=work_dir+"/"+image,
+                                               jp2a_args=argv[args_rest:])
 
                 if success == False: return 1
           
-                frame+=1
+                frame += 1
 
             #END for image in images
 
@@ -220,16 +239,14 @@ def main(argv=sys.argv):
 
         #END with open(program_file,"w")
 
-        compiler=["cc",program_file,"-o",out_file,"-lcurses"]
+        compiler=["cc", program_file, "-o", out_file, "-lcurses"]
         subprocess.call(compiler)
+
         return 0
 
-    #END with tempfile.TemporaryDirectory()  
-            
-    
-    
-    
-    
+    #END with tempfile.TemporaryDirectory()
+
+ 
 if __name__=="__main__":
     sys.exit(main())
 
