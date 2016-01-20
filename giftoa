@@ -1,5 +1,9 @@
 #!/usr/bin/python3
 
+# Author: Teriks
+# 
+# BSD 3-Clause, see LICENSE
+
 import sys
 import os.path
 import tempfile
