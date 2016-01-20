@@ -34,7 +34,7 @@ note:
 
 
 
-def jp2a_cvars_into_file(env,file_out,var_name,image_filename,jp2a_args):
+def jp2a_cvars_into_file(env, file_out, var_name, image_filename, jp2a_args):
     
     jp2a = ["jp2a", image_filename]
     jp2a.extend(jp2a_args)
@@ -43,9 +43,9 @@ def jp2a_cvars_into_file(env,file_out,var_name,image_filename,jp2a_args):
     first_line = True
 
 
-    with subprocess.Popen(jp2a,stdout=subprocess.PIPE,stderr=subprocess.PIPE,env=env) as p:
+    with subprocess.Popen(jp2a, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env) as p:
 
-        data=p.communicate()
+        data = p.communicate()
 
         for line in data[1].decode().split('\n'):
             if line != "":
@@ -168,7 +168,7 @@ int main(int argc, char *argv[]) {
 """
 
 
-def main(argv=sys.argv):
+def main(argv = sys.argv):
     
     if len(argv) == 1:
         usage()
