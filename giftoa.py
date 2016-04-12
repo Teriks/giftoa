@@ -23,52 +23,27 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-
 import sys
 import os.path
 import tempfile
 import subprocess
 import re
-import select
+import argparse
+
 
 def natural_sort_key(s, _nsre=re.compile('([0-9]+)')):
     return [int(text) if text.isdigit() else text.lower()
-            for text in re.split(_nsre, s)] 
-
-
-
-def usage():
-    print( 
-"""===============================================================================
-
-giftoa:
-
- Compiles a binary that plays a GIF animation in ACSII on the terminal.
-
-
-usage: giftoa gif_file.gif -o output_exe [jp2a options...]
-
-or: giftoa gif_file.gif [jp2a options...]  (Executable is named after GIF file)
-
-note: 
- You must have ImageMagick, jp2a and the libncurses development package 
- installed on your machine.
-
-===============================================================================""");
-
+            for text in re.split(_nsre, s)]
 
 
 def jp2a_cvars_into_file(env, file_out, var_name, image_filename, jp2a_args):
-    
     jp2a = ["jp2a", image_filename]
     jp2a.extend(jp2a_args)
 
     success = True
     first_line = True
 
-
     with subprocess.Popen(jp2a, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env) as p:
-
         data = p.communicate()
 
         for line in data[1].decode().split('\n'):
@@ -76,35 +51,18 @@ def jp2a_cvars_into_file(env, file_out, var_name, image_filename, jp2a_args):
                 print(line, file=sys.stderr)
                 success = False
 
-            #END if line != ""
-
-        #END for
-            
         for line in data[0].decode().split('\n'):
             if line != "":
                 if first_line:
-                    file_out.write("const char* "+var_name+"= \"\\\n"+line.rstrip()+"\\n\\\n")
+                    file_out.write("const char* " + var_name + "= \"\\\n" + line.rstrip() + "\\n\\\n")
                     first_line = False
                 else:
-                    file_out.write(line.rstrip()+"\\n\\\n")
-                #END else
-
-            #END if line != ""
-
-        #END for
-
+                    file_out.write(line.rstrip() + "\\n\\\n")
         file_out.write("\";\n\n")
-
-    #END with	
-        
     return success
 
-#END jp2a_cvars_into_file
 
-
-
-
-c_headers="""
+c_headers = """
 #include "signal.h"
 #include "curses.h"
 #include "unistd.h"
@@ -112,8 +70,8 @@ c_headers="""
 
 
 """
-    
-c_program="""
+
+c_program = """
 WINDOW * mainwin = 0;
 
 void cleanup()
@@ -146,7 +104,7 @@ int main(int argc, char *argv[])
 
 
     
-    const float framesleep = 100*1000;
+    const float framesleep = !FRAMESLEEP!;
 
     if ( (mainwin = initscr()) == NULL ) {
         fprintf(stderr, "Error initialising ncurses.\\n");
@@ -156,9 +114,7 @@ int main(int argc, char *argv[])
     
     const char * frames[] = FRAMES_INIT;
     int framecnt = sizeof(frames) / sizeof(const char*);
-    
-    
-    
+
 
     int frame = 0;
 
@@ -180,8 +136,6 @@ int main(int argc, char *argv[])
         frame = frame == framecnt-1 ? 0 : frame+1;
     }
 
-
-
     cleanup();
 
     return EXIT_SUCCESS;
@@ -189,86 +143,85 @@ int main(int argc, char *argv[])
 """
 
 
-def main(argv = sys.argv):
-    
-    if len(argv) == 1:
-        usage()
-        return 1
+def is_valid_file(parser, file):
+    if os.path.isfile(file):
+        return file
     else:
+        parser.error('The file "{file}" does not exist.'.format(file=file))
 
-        args_rest = 2
-        in_file = argv[1]
-        out_file = ""
 
-        if len(argv) > 3 and argv[2] == "-o":
-            args_rest = 4
-            out_file = argv[3]
-        else:
-            out_file = os.path.splitext(os.path.basename(argv[1]))[0]
+parser = argparse.ArgumentParser(
+    prog="giftoa",
+    description="Compile a GIF into an native executable that plays the GIF in ASCII on the console using libncurses.",
+    epilog=
+    "All arguments following the arguments listed above will be passed as options to jp2a.  ANSI colors are not supported...  "
+    "Also note that this program requires: gcc, libncurses-dev, jp2a and ImageMagick."
+)
 
-        #END else
+parser.add_argument('gif_file', help="The GIF file.", nargs=1, type=lambda file: is_valid_file(parser, file))
 
-    #END else
-        
-            
-    if not os.path.isfile(in_file):
-        print("'{0}' does not exist or is not a file".format(in_file))
-        return 1
-    #END if
-    
- 
- 
+parser.add_argument('-o', '--output',
+                    help="The name of the output file, if none is supplied it is taken from the name of the GIF.",
+                    dest="out_file")
+
+parser.add_argument('-fs', '--framesleep', type=str, default="100*1000",
+                    help="The number of microseconds to sleep before moving to the next frame of the GIf. "
+                         "The default is 100*1000;  this value can be an expression.")
+
+
+
+def main():
+    args = parser.parse_known_args()
+    jp2a_args = args[1]
+    args = args[0]
+
+    in_file = args.gif_file[0]
+    out_file = os.path.splitext(os.path.basename(in_file))[0] if not args.out_file else args.out_file
+
     env = os.environ.copy()
 
-    if "TERM" not in env: env["TERM"] = 'xterm'
-    
-    with tempfile.TemporaryDirectory() as work_dir:
-    
-        cnvrt = ["convert", "-coalesce", in_file, os.path.join(work_dir, "%d.jpg")]
+    if "TERM" not in env:
+        env["TERM"] = 'xterm'
 
-        subprocess.call(cnvrt);
-    
+    with tempfile.TemporaryDirectory() as work_dir:
+        convert_cmd = ["convert", "-coalesce", in_file, os.path.join(work_dir, "%d.jpg")]
+
+        subprocess.call(convert_cmd);
+
         images = sorted(os.listdir(work_dir), key=natural_sort_key)
 
         program_file = os.path.join(work_dir, "program.c")
-        
+
         with open(program_file, "w") as file:
 
             frames = []
             frame = 0
 
             file.write(c_headers)
-            
+
             for image in images:
 
-                frames.append("frame_"+str(frame))
-                
+                frames.append("frame_" + str(frame))
+
                 success = jp2a_cvars_into_file(env=env,
                                                file_out=file,
-                                               var_name="frame_"+str(frame),
-                                               image_filename=work_dir+"/"+image,
-                                               jp2a_args=argv[args_rest:])
+                                               var_name="frame_" + str(frame),
+                                               image_filename=work_dir + "/" + image,
+                                               jp2a_args=jp2a_args)
 
-                if success == False: return 1
-          
+                if not success:
+                    return 1
+
                 frame += 1
 
-            #END for image in images
-
-            file.write("#define FRAMES_INIT {"+",".join(frames)+"}")
-            file.write(c_program)
-
-        #END with open(program_file,"w")
+            file.write("#define FRAMES_INIT {" + ",".join(frames) + "}")
+            file.write(c_program.replace("!FRAMESLEEP!", args.framesleep, 1))
 
         compiler = ["cc", program_file, "-o", out_file, "-lcurses"]
         subprocess.call(compiler)
 
         return 0
 
-    #END with tempfile.TemporaryDirectory()
 
- 
-if __name__=="__main__":
+if __name__ == "__main__":
     sys.exit(main())
-
-
