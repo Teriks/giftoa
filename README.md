@@ -14,11 +14,11 @@ Compiles a native binary that plays a GIF file in ASCII on the terminal using nc
 
 ## Usage
 
-`giftoa gif_file.gif -o output_exe [jp2a options...]`
+`giftoa.py gif_file.gif -o output_exe [jp2a options...]`
 
 **or**
 
-`giftoa gif_file.gif [jp2a options...]`  (Executable is named after GIF file)
+`giftoa.py gif_file.gif [jp2a options...]`  (Executable is named after GIF file)
 
 
 ===
@@ -28,7 +28,7 @@ Compiles a native binary that plays a GIF file in ASCII on the terminal using nc
 
 examples:
 
-`giftoa gif_file.gif -fs 100*1000 -o output_exe [jp2a options...]`
+`giftoa.py gif_file.gif -fs 100*1000 -o output_exe [jp2a options...]`
 
 ===
 
