@@ -30,5 +30,6 @@ examples:
 
 `giftoa gif_file.gif -fs 100*1000 -o output_exe [jp2a options...]`
 
+===
 
 See `jp2a -h` for more options once it is installed.
