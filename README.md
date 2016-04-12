@@ -26,6 +26,8 @@ Compiles a native binary that plays a GIF file in ASCII on the terminal using nc
 
 `-fs` or `--framesleep` can be used to adjust the delay in microseconds between GIF frames.
 
+It's argument can be an expression, it is a 32 bit floating point number.
+
 examples:
 
 `giftoa.py -i gif_file.gif -fs 100*1000 -o output_exe [jp2a options...]`
