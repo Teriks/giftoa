@@ -9,7 +9,7 @@ Compiles a native binary that plays a GIF file in ASCII on the terminal using nc
 * Python 3.x
 * ImageMagick
 * jp2a
-* libncurses development package for your distro
+* libncurses-dev development package for your distro
 
 
 ## Usage
