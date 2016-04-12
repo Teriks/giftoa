@@ -5,7 +5,7 @@ Compiles a native binary that plays a GIF file in ASCII on the terminal using nc
 
 ## Requirements
 
-* gcc
+* gcc or compatible compiler, you can specify the compiler with `-cc` or `--compiler`
 * Python 3.x
 * ImageMagick
 * jp2a
@@ -14,11 +14,11 @@ Compiles a native binary that plays a GIF file in ASCII on the terminal using nc
 
 ## Usage
 
-`giftoa.py gif_file.gif -o output_exe [jp2a options...]`
+`giftoa.py -i gif_file.gif -o output_exe [jp2a options...]`
 
 **or**
 
-`giftoa.py gif_file.gif [jp2a options...]`  (Executable is named after GIF file)
+`giftoa.py -i gif_file.gif [jp2a options...]`  (Executable is named after GIF file)
 
 
 ===
@@ -28,8 +28,20 @@ Compiles a native binary that plays a GIF file in ASCII on the terminal using nc
 
 examples:
 
-`giftoa.py gif_file.gif -fs 100*1000 -o output_exe [jp2a options...]`
+`giftoa.py -i gif_file.gif -fs 100*1000 -o output_exe [jp2a options...]`
+
 
 ===
+
+
+`-cc` or `--compiler` can be used to specify the compiler used to compile the binary
+
+examples:
+
+`giftoa.py -i gif_file.gif -cc clang -o output_exe [jp2a options...]`
+
+
+===
+
 
 See `jp2a -h` for more options once it is installed.

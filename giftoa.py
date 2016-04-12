@@ -158,7 +158,7 @@ parser = argparse.ArgumentParser(
     "Also note that this program requires: gcc, libncurses-dev, jp2a and ImageMagick."
 )
 
-parser.add_argument('gif_file', help="The GIF file.", nargs=1, type=lambda file: is_valid_file(parser, file))
+parser.add_argument('-i', '--input', help="The GIF file.", required=True, type=lambda file: is_valid_file(parser, file))
 
 parser.add_argument('-o', '--output',
                     help="The name of the output file, if none is supplied it is taken from the name of the GIF.",
@@ -168,6 +168,9 @@ parser.add_argument('-fs', '--framesleep', type=str, default="100*1000",
                     help="The number of microseconds to sleep before moving to the next frame of the GIf. "
                          "The default is 100*1000;  this value can be an expression.")
 
+parser.add_argument('-cc', '--compiler', type=str, default="cc",
+                    help="The command used to invoke the C compiler, default is 'cc'.")
+
 
 
 def main():
@@ -175,8 +178,9 @@ def main():
     jp2a_args = args[1]
     args = args[0]
 
-    in_file = args.gif_file[0]
+    in_file = args.input
     out_file = os.path.splitext(os.path.basename(in_file))[0] if not args.out_file else args.out_file
+    compiler = args.compiler
 
     env = os.environ.copy()
 
@@ -184,6 +188,7 @@ def main():
         env["TERM"] = 'xterm'
 
     with tempfile.TemporaryDirectory() as work_dir:
+
         convert_cmd = ["convert", "-coalesce", in_file, os.path.join(work_dir, "%d.jpg")]
 
         subprocess.call(convert_cmd);
@@ -217,7 +222,7 @@ def main():
             file.write("#define FRAMES_INIT {" + ",".join(frames) + "}")
             file.write(c_program.replace("!FRAMESLEEP!", args.framesleep, 1))
 
-        compiler = ["cc", program_file, "-o", out_file, "-lcurses"]
+        compiler = [compiler, program_file, "-o", out_file, "-lcurses"]
         subprocess.call(compiler)
 
         return 0
