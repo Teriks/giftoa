@@ -69,9 +69,8 @@ def jp2a_cvars_into_file(env, file_out, var_name, image_filename, jp2a_args):
 c_headers = """
 #include "signal.h"
 #include "curses.h"
-#include "unistd.h"
 #include "stdlib.h"
-
+#include "time.h"
 
 """
 
@@ -97,6 +96,10 @@ void signal_handler(int s)
 
 int main(int argc, char *argv[]) 
 {
+    struct timespec frameDelay;
+    frameDelay.tv_nsec = !FRAMESLEEP!;
+    frameDelay.tv_sec = 0;
+
 
     struct sigaction sigIntHandler;
 
@@ -106,9 +109,6 @@ int main(int argc, char *argv[])
 
     sigaction(SIGINT, &sigIntHandler, NULL);
 
-
-    
-    const float framesleep = !FRAMESLEEP!;
 
     if ( (mainwin = initscr()) == NULL ) {
         fprintf(stderr, "Error initialising ncurses.\\n");
@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
 
         mvaddstr(0, 0, frames[frame]);
         refresh();
-        usleep(framesleep);
+        nanosleep(&frameDelay, NULL);
 
         frame = frame == framecnt-1 ? 0 : frame+1;
     }
@@ -152,6 +152,14 @@ def is_valid_file(parser, file):
         return file
     else:
         parser.error('The file "{file}" does not exist.'.format(file=file))
+
+def is_valid_framesleep(parser, sleep):
+    i_value = int(sleep)
+    if i_value > 999999999:
+        parser.error('The --framesleep value given was greater than 999999999.')
+    if i_value < 0:
+        parser.error('The --framesleep value given was less than 0.')
+    return sleep
 
 
 parser = argparse.ArgumentParser(
@@ -172,9 +180,10 @@ parser.add_argument('-o', '--output',
                     help='The name of the output file, if none is supplied it is taken from the name of the GIF.',
                     dest='out_file')
 
-parser.add_argument('-fs', '--framesleep', type=str, default='100*1000',
-                    help='The number of microseconds to sleep before moving to the next frame of the GIf. '
-                         'The default is 100*1000;  this value can be an expression.')
+parser.add_argument('-fs', '--framesleep', default='100000000', 
+                    type=lambda sleep: is_valid_framesleep(parser, sleep),
+                    help='The number of nanoseconds to sleep before moving to the next frame of the GIF. '
+                         'The default is 100000000, the value cannot be greater than 999999999.')
 
 parser.add_argument('-cc', '--compiler', type=str, default='cc',
                     help='The command used to invoke the C compiler, default is "cc".')
