@@ -190,15 +190,13 @@ def main():
     if "TERM" not in env:
         env["TERM"] = 'xterm'
 
-    with tempfile.TemporaryDirectory() as work_dir:
+    with tempfile.TemporaryDirectory() as temp_dir:
 
-        convert_cmd = ["convert", "-coalesce", in_file, os.path.join(work_dir, "%d.jpg")]
+        subprocess.call(["convert", "-coalesce", in_file, os.path.join(temp_dir, "%d.jpg")]);
 
-        subprocess.call(convert_cmd);
+        images = sorted(os.listdir(temp_dir), key=natural_sort_key)
 
-        images = sorted(os.listdir(work_dir), key=natural_sort_key)
-
-        program_file = os.path.join(work_dir, "program.c")
+        program_file = os.path.join(temp_dir, "program.c")
 
         with open(program_file, "w") as file:
 
@@ -214,7 +212,7 @@ def main():
                 success = jp2a_cvars_into_file(env=env,
                                                file_out=file,
                                                var_name="frame_" + str(frame),
-                                               image_filename=work_dir + "/" + image,
+                                               image_filename=temp_dir + "/" + image,
                                                jp2a_args=jp2a_args)
 
                 if not success:
@@ -225,8 +223,7 @@ def main():
             file.write("#define FRAMES_INIT {" + ",".join(frames) + "}")
             file.write(c_program.replace("!FRAMESLEEP!", args.framesleep, 1))
 
-        compiler = [compiler, program_file, "-o", out_file, "-lcurses"]
-        subprocess.call(compiler)
+        subprocess.call([compiler, program_file, "-o", out_file, "-lcurses"])
 
         return 0
 
