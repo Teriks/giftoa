@@ -31,42 +31,7 @@ import re
 import argparse
 
 
-def natural_sort_key(s, _nsre=re.compile('([0-9]+)')):
-    return [int(text) if text.isdigit() else text.lower()
-            for text in re.split(_nsre, s)]
-
-
-def jp2a_cvars_into_file(env, file_out, var_name, image_filename, jp2a_args):
-    jp2a = ['jp2a', image_filename]
-    jp2a.extend(jp2a_args)
-
-    success = True
-    first_line = True
-
-    with subprocess.Popen(jp2a, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env) as p:
-        data = p.communicate()
-
-        for line in data[1].decode().split('\n'):
-            if line != '':
-                print(line, file=sys.stderr)
-                success = False
-                
-        if not success:
-            return False
-        
-        for line in data[0].decode().split('\n'):
-            if line != '':
-                if first_line:
-                    file_out.write('const char* ' + var_name + '= "\\\n' + line.rstrip() + '\\n\\\n')
-                    first_line = False
-                else:
-                    file_out.write(line.rstrip() + '\\n\\\n')
-
-        file_out.write('";\n\n')
-    return success
-
-
-c_headers = """
+C_HEADERS = """
 #include "signal.h"
 #include "curses.h"
 #include "stdlib.h"
@@ -74,7 +39,7 @@ c_headers = """
 
 """
 
-c_program = """
+C_PROGRAM = """
 WINDOW * mainwin = 0;
 
 void cleanup()
@@ -97,8 +62,7 @@ void signal_handler(int s)
 int main(int argc, char *argv[]) 
 {
     struct timespec frameDelay;
-    frameDelay.tv_nsec = !FRAMESLEEP!;
-    frameDelay.tv_sec = 0;
+    !FRAMESLEEP_INIT!
 
 
     struct sigaction sigIntHandler;
@@ -147,18 +111,64 @@ int main(int argc, char *argv[])
 """
 
 
+def natural_sort_key(s, _nsre=re.compile('([0-9]+)')):
+    return [int(text) if text.isdigit() else text.lower()
+            for text in re.split(_nsre, s)]
+
+
+def jp2a_cvars_into_file(environment, file_out, var_name, image_filename, jp2a_args):
+    jp2a = ['jp2a', image_filename]
+    jp2a.extend(jp2a_args)
+
+    success = True
+    first_line = True
+
+    with subprocess.Popen(jp2a, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=environment) as p:
+        data = p.communicate()
+
+        for line in data[1].decode().split('\n'):
+            if line != '':
+                print(line, file=sys.stderr)
+                success = False
+
+        if not success:
+            return False
+
+        for line in data[0].decode().split('\n'):
+            if line != '':
+                if first_line:
+                    file_out.write('const char* ' + var_name + '= "\\\n' + line.rstrip() + '\\n\\\n')
+                    first_line = False
+                else:
+                    file_out.write(line.rstrip() + '\\n\\\n')
+
+        file_out.write('";\n\n')
+
+    return success
+
+
 def is_valid_file(parser, file):
     if os.path.isfile(file):
         return file
     else:
         parser.error('The file "{file}" does not exist.'.format(file=file))
 
-def is_valid_framesleep(parser, sleep):
+
+def is_valid_framesleep_seconds(parser, sleep):
+    i_value = int(sleep)
+    if i_value > 2147483647:
+        parser.error('The --framesleep-seconds value given was greater than 2147483647.')
+    if i_value < 0:
+        parser.error('The --framesleep-seconds value given was less than 0.')
+    return sleep
+
+
+def is_valid_framesleep_nanoseconds(parser, sleep):
     i_value = int(sleep)
     if i_value > 999999999:
-        parser.error('The --framesleep value given was greater than 999999999.')
+        parser.error('The --framesleep-nanoseconds value given was greater than 999999999.')
     if i_value < 0:
-        parser.error('The --framesleep value given was less than 0.')
+        parser.error('The --framesleep-nanoseconds value given was less than 0.')
     return sleep
 
 
@@ -180,29 +190,46 @@ parser.add_argument('-o', '--output',
                     help='The name of the output file, if none is supplied it is taken from the name of the GIF.',
                     dest='out_file')
 
-parser.add_argument('-fs', '--framesleep', default='100000000', 
-                    type=lambda sleep: is_valid_framesleep(parser, sleep),
+
+parser.add_argument('-fss', '--framesleep-seconds', default='0', dest='framesleep_seconds',
+
+                    type=lambda sleep: is_valid_framesleep_seconds(parser, sleep),
+
+                    help='The number of seconds to sleep before moving to the next frame of the GIF.  '
+                         'This is in addition to the number of nanoseconds specified by "-fsn".  '
+                         'The default is 0, the value cannot be greater than 2147483647.'
+                    )
+
+parser.add_argument('-fsn', '--framesleep-nanoseconds', default='100000000', dest='framesleep_nanoseconds',
+
+                    type=lambda sleep: is_valid_framesleep_nanoseconds(parser, sleep),
+
                     help='The number of nanoseconds to sleep before moving to the next frame of the GIF. '
-                         'The default is 100000000, the value cannot be greater than 999999999.')
+                         'This is in addition to the number of seconds specified by "-fss."  '
+                         'The default is 100000000, the value cannot be greater than 999999999.'
+                    )
 
 parser.add_argument('-cc', '--compiler', type=str, default='cc',
                     help='The command used to invoke the C compiler, default is "cc".')
 
 
-
 def main():
-    args = parser.parse_known_args()
-    jp2a_args = args[1]
-    args = args[0]
+    giftoa_args = parser.parse_known_args()
+    jp2a_args = giftoa_args[1]
+    giftoa_args = giftoa_args[0]
 
-    in_file = args.input
-    out_file = os.path.splitext(os.path.basename(in_file))[0] if not args.out_file else args.out_file
-    compiler = args.compiler
+    in_file = giftoa_args.input
+    out_file = os.path.splitext(os.path.basename(in_file))[0] if not giftoa_args.out_file else giftoa_args.out_file
+    compiler = giftoa_args.compiler
 
-    env = os.environ.copy()
+    environment = os.environ.copy()
 
-    if 'TERM' not in env:
-        env['TERM'] = 'xterm'
+    if 'TERM' not in environment:
+        environment['TERM'] = 'xterm'
+
+    frame_sleep_init = 'frameDelay.tv_nsec = {nanoseconds};frameDelay.tv_sec = {seconds};'\
+                       .format(nanoseconds=giftoa_args.framesleep_nanoseconds,
+                               seconds=giftoa_args.framesleep_seconds)
 
     with tempfile.TemporaryDirectory() as temp_dir:
 
@@ -217,13 +244,13 @@ def main():
             frames = []
             frame = 0
 
-            file.write(c_headers)
+            file.write(C_HEADERS)
 
             for image in images:
 
                 frames.append('frame_' + str(frame))
 
-                success = jp2a_cvars_into_file(env=env,
+                success = jp2a_cvars_into_file(environment=environment,
                                                file_out=file,
                                                var_name='frame_' + str(frame),
                                                image_filename=temp_dir + '/' + image,
@@ -235,7 +262,7 @@ def main():
                 frame += 1
 
             file.write('#define FRAMES_INIT {' + ','.join(frames) + '}')
-            file.write(c_program.replace('!FRAMESLEEP!', args.framesleep, 1))
+            file.write(C_PROGRAM.replace('!FRAMESLEEP_INIT!', frame_sleep_init, 1))
 
         subprocess.call([compiler, program_file, '-o', out_file, '-lcurses'])
 
