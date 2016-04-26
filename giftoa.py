@@ -37,7 +37,7 @@ def natural_sort_key(s, _nsre=re.compile('([0-9]+)')):
 
 
 def jp2a_cvars_into_file(env, file_out, var_name, image_filename, jp2a_args):
-    jp2a = ["jp2a", image_filename]
+    jp2a = ['jp2a', image_filename]
     jp2a.extend(jp2a_args)
 
     success = True
@@ -47,7 +47,7 @@ def jp2a_cvars_into_file(env, file_out, var_name, image_filename, jp2a_args):
         data = p.communicate()
 
         for line in data[1].decode().split('\n'):
-            if line != "":
+            if line != '':
                 print(line, file=sys.stderr)
                 success = False
                 
@@ -55,13 +55,14 @@ def jp2a_cvars_into_file(env, file_out, var_name, image_filename, jp2a_args):
             return False
         
         for line in data[0].decode().split('\n'):
-            if line != "":
+            if line != '':
                 if first_line:
-                    file_out.write("const char* " + var_name + "= \"\\\n" + line.rstrip() + "\\n\\\n")
+                    file_out.write('const char* ' + var_name + '= "\\\n' + line.rstrip() + '\\n\\\n')
                     first_line = False
                 else:
-                    file_out.write(line.rstrip() + "\\n\\\n")
-        file_out.write("\";\n\n")
+                    file_out.write(line.rstrip() + '\\n\\\n')
+
+        file_out.write('";\n\n')
     return success
 
 
@@ -154,25 +155,29 @@ def is_valid_file(parser, file):
 
 
 parser = argparse.ArgumentParser(
-    prog="giftoa",
-    description="Compile a GIF into an native executable that plays the GIF in ASCII on the console using libncurses.",
+    prog='giftoa',
+
+    description=
+    'Compile a GIF into an native executable that plays the GIF in ASCII on the console using libncurses.',
+
     epilog=
-    "All arguments following the arguments listed above will be passed as options to jp2a.  ANSI colors are not supported...  "
-    "Also note that this program requires: gcc, libncurses-dev, jp2a and ImageMagick."
+    'All arguments following the arguments listed above will be '
+    'passed as options to jp2a.  ANSI colors are not supported...  '
+    'Also note that this program requires: gcc, libncurses-dev, jp2a and ImageMagick.'
 )
 
-parser.add_argument('-i', '--input', help="The GIF file.", required=True, type=lambda file: is_valid_file(parser, file))
+parser.add_argument('-i', '--input', help='The GIF file.', required=True, type=lambda file: is_valid_file(parser, file))
 
 parser.add_argument('-o', '--output',
-                    help="The name of the output file, if none is supplied it is taken from the name of the GIF.",
-                    dest="out_file")
+                    help='The name of the output file, if none is supplied it is taken from the name of the GIF.',
+                    dest='out_file')
 
-parser.add_argument('-fs', '--framesleep', type=str, default="100*1000",
-                    help="The number of microseconds to sleep before moving to the next frame of the GIf. "
-                         "The default is 100*1000;  this value can be an expression.")
+parser.add_argument('-fs', '--framesleep', type=str, default='100*1000',
+                    help='The number of microseconds to sleep before moving to the next frame of the GIf. '
+                         'The default is 100*1000;  this value can be an expression.')
 
-parser.add_argument('-cc', '--compiler', type=str, default="cc",
-                    help="The command used to invoke the C compiler, default is 'cc'.")
+parser.add_argument('-cc', '--compiler', type=str, default='cc',
+                    help='The command used to invoke the C compiler, default is "cc".')
 
 
 
@@ -187,18 +192,18 @@ def main():
 
     env = os.environ.copy()
 
-    if "TERM" not in env:
-        env["TERM"] = 'xterm'
+    if 'TERM' not in env:
+        env['TERM'] = 'xterm'
 
     with tempfile.TemporaryDirectory() as temp_dir:
 
-        subprocess.call(["convert", "-coalesce", in_file, os.path.join(temp_dir, "%d.jpg")]);
+        subprocess.call(['convert', '-coalesce', in_file, os.path.join(temp_dir, '%d.jpg')])
 
         images = sorted(os.listdir(temp_dir), key=natural_sort_key)
 
-        program_file = os.path.join(temp_dir, "program.c")
+        program_file = os.path.join(temp_dir, 'program.c')
 
-        with open(program_file, "w") as file:
+        with open(program_file, 'w') as file:
 
             frames = []
             frame = 0
@@ -207,12 +212,12 @@ def main():
 
             for image in images:
 
-                frames.append("frame_" + str(frame))
+                frames.append('frame_' + str(frame))
 
                 success = jp2a_cvars_into_file(env=env,
                                                file_out=file,
-                                               var_name="frame_" + str(frame),
-                                               image_filename=temp_dir + "/" + image,
+                                               var_name='frame_' + str(frame),
+                                               image_filename=temp_dir + '/' + image,
                                                jp2a_args=jp2a_args)
 
                 if not success:
@@ -220,13 +225,13 @@ def main():
 
                 frame += 1
 
-            file.write("#define FRAMES_INIT {" + ",".join(frames) + "}")
-            file.write(c_program.replace("!FRAMESLEEP!", args.framesleep, 1))
+            file.write('#define FRAMES_INIT {' + ','.join(frames) + '}')
+            file.write(c_program.replace('!FRAMESLEEP!', args.framesleep, 1))
 
-        subprocess.call([compiler, program_file, "-o", out_file, "-lcurses"])
+        subprocess.call([compiler, program_file, '-o', out_file, '-lcurses'])
 
         return 0
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(main())
