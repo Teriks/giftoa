@@ -187,7 +187,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument('-i', '--input', help='The GIF file.', required=True, type=lambda file: is_valid_file(parser, file))
 
 parser.add_argument('-o', '--output',
-                    help='The name of the output file, if none is supplied it is taken from the name of the GIF.',
+                    help='The name of the output file.  If none is supplied it is taken from the name of the GIF.',
                     dest='out_file')
 
 
