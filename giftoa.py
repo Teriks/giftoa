@@ -50,7 +50,10 @@ def jp2a_cvars_into_file(env, file_out, var_name, image_filename, jp2a_args):
             if line != "":
                 print(line, file=sys.stderr)
                 success = False
-
+                
+        if not success:
+            return False
+        
         for line in data[0].decode().split('\n'):
             if line != "":
                 if first_line:
