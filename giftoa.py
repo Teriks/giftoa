@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 {
     struct timespec frameDelay;
 
-    GIFTOA_FRAMESLEEP_INIT
+    GIFTOA_FRAMEDELAY_INIT(frameDelay)
 
     struct sigaction sigIntHandler;
 
@@ -285,7 +285,7 @@ def write_jp2a_cvar_into_file(environment, file, var_name, image_filename, jp2a_
     return success
 
 
-def get_framesleep_init_string(args):
+def get_framedelay_init_macro_define(macro_name, args):
     if args.frames_per_second:
         if args.frames_per_second == 1:
             frame_sleep_seconds = 1
@@ -301,9 +301,11 @@ def get_framesleep_init_string(args):
         frame_sleep_nanoseconds = args.framesleep_nanoseconds if \
             args.framesleep_nanoseconds else 100000000
 
-    return 'frameDelay.tv_nsec = {nanoseconds};' \
-           'frameDelay.tv_sec = {seconds};' \
-           .format(nanoseconds=frame_sleep_nanoseconds,
+    return '#define {macro_name}(VAR) ' \
+           'VAR.tv_nsec = {nanoseconds}; ' \
+           'VAR.tv_sec = {seconds};' \
+           .format(macro_name=macro_name,
+                   nanoseconds=frame_sleep_nanoseconds,
                    seconds=frame_sleep_seconds)
 
 
@@ -326,8 +328,6 @@ def main():
 
     if 'TERM' not in environment:
         environment['TERM'] = 'xterm'
-
-    frame_sleep_init_string = get_framesleep_init_string(args)
 
     with tempfile.TemporaryDirectory() as temp_dir:
 
@@ -384,7 +384,7 @@ def main():
                     return 1
 
             out_c_source.write('#define GIFTOA_FRAMES_INIT {' + ','.join(frame_cvar_names) + '}\n')
-            out_c_source.write('#define GIFTOA_FRAMESLEEP_INIT ' + frame_sleep_init_string + '\n')
+            out_c_source.write(get_framedelay_init_macro_define('GIFTOA_FRAMEDELAY_INIT', args))
             out_c_source.write(C_PROGRAM)
 
         subprocess.call([compiler, program_file, '-o', out_file, '-lcurses'])
