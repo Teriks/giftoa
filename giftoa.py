@@ -307,7 +307,7 @@ def main():
     jp2a_args = args[1]
     args = args[0]
 
-    if args.frames_per_second and args.framesleep_seconds or args.framesleep_nanoseconds:
+    if args.frames_per_second and (args.framesleep_seconds or args.framesleep_nanoseconds):
         parser.error('-fss (--framesleep-seconds) and -fsn (--framesleep-nanoseconds) '
                      'cannot be used with -fps (--frames-per-second).')
         # parser.error calls exit(2) immediately
@@ -322,6 +322,7 @@ def main():
         environment['TERM'] = 'xterm'
 
     frame_sleep_init_string = get_framesleep_init_string(args)
+    print(frame_sleep_init_string)
 
     with tempfile.TemporaryDirectory() as temp_dir:
 
