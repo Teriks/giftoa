@@ -342,7 +342,7 @@ def main():
         else:
             if not out_file:
                 parser.error('No output file specified, an output file must be specified '
-                             'when passing a directory to --input or -i.')
+                             'when passing a directory to -i/--input.')
                 # parser.error calls exit(2) immediately
 
             image_paths = (file for file in os.listdir(input_path) if os.path.splitext(file)[1] in jp2a_known_extensions)
