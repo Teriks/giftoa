@@ -137,7 +137,7 @@ def is_valid_frames_per_second(parser, sleep):
         i_value = int(sleep)
     except ValueError:
         parser.error(err_prefix + 'Value must be a whole / integral number.')
-        # parser.error calls exit(), this is to silence pre-commit code analysis
+        # parser.error calls exit(2), this is to silence pre-commit code analysis
         return None
 
     if i_value > 1000000000:
@@ -154,7 +154,7 @@ def is_valid_framesleep_seconds(parser, sleep):
         i_value = int(sleep)
     except ValueError:
         parser.error(err_prefix + 'Value must be a whole / integral number.')
-        # parser.error calls exit(), this is to silence pre-commit code analysis
+        # parser.error calls exit(2), this is to silence pre-commit code analysis
         return None
 
     if i_value > 2147483647:
@@ -171,7 +171,7 @@ def is_valid_framesleep_nanoseconds(parser, sleep):
         i_value = int(sleep)
     except ValueError:
         parser.error(err_prefix + 'Value must be a whole / integral number.')
-        # parser.error calls exit(), this is to silence pre-commit code analysis
+        # parser.error calls exit(2), this is to silence pre-commit code analysis
         return None
 
     if i_value > 999999999:
@@ -309,6 +309,7 @@ def main():
     if args.frames_per_second and args.framesleep_seconds or args.framesleep_nanoseconds:
         parser.error('-fss (--framesleep-seconds) and -fsn (--framesleep-nanoseconds) '
                      'cannot be used with -fps (--frames-per-second).')
+        # parser.error calls exit(2) immediately
 
     input_path = args.input_path
     out_file = args.out_file
@@ -341,12 +342,14 @@ def main():
             if not out_file:
                 parser.error('No output file specified, an output file must be specified '
                              'when passing a directory to --input or -i.')
+                # parser.error calls exit(2) immediately
 
             image_paths = (file for file in os.listdir(input_path) if os.path.splitext(file)[1] in jp2a_known_extensions)
             image_paths = sorted(image_paths, key=natural_sort_key)
 
             if len(image_paths) == 0:
                 parser.error('No jp2a compatible images found in directory "{dir}".'.format(dir=input_path))
+                # parser.error calls exit(2) immediately
 
             image_paths = (os.path.join(input_path, path) for path in image_paths)
 
