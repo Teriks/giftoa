@@ -5,6 +5,9 @@ Compiles a native binary that plays a GIF in ASCII on the terminal using ncurses
 ![Demo](https://github.com/Teriks/giftoa/raw/master/readme_demo.gif)
 
 
+`./giftoa.py -i cat.gif -o cat_gif --invert && ./cat_gif`
+
+
 ## Requirements
 
 * gcc or compatible compiler, you can specify the compiler with `-cc` or `--compiler`
