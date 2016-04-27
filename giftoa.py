@@ -213,8 +213,8 @@ parser.add_argument('-fps', '--frames-per-second', default=None, dest='frames_pe
 
                     type=lambda sleep: is_valid_frames_per_second(parser, sleep),
 
-                    help='The frames per second to attempt to play the animation at.  The minimum value is 1 '
-                         'and the maximum value is 1000000000, FPS must be a whole number.  '
+                    help='The frames per second to attempt to play the animation at (defaults to 10).  '
+                         'The minimum value is 1 and the maximum value is 1000000000, FPS must be a whole number.  '
                          'This cannot be used when either -fss or -fsn is specified.'
                     )
 
