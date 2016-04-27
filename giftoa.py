@@ -351,7 +351,9 @@ def main():
                              'when passing a directory to -i/--input.')
                 # parser.error calls exit(2) immediately
 
-            image_paths = (file for file in os.listdir(input_path) if os.path.splitext(file)[1] in jp2a_known_extensions)
+            image_paths = (file for file in os.listdir(input_path) if
+                           os.path.splitext(file)[1] in jp2a_known_extensions)
+
             image_paths = sorted(image_paths, key=natural_sort_key)
 
             if len(image_paths) == 0:
