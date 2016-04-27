@@ -60,7 +60,7 @@ example:
 This option cannot be used with `-fps` / `--frames-per-second`.
 
 
-The maximum value is 999999999 nanoseconds, the value must be a whole number.
+The minimum value is 0 and the maximum value is 999999999, the value must be a whole number.
 
 
 example:
@@ -82,7 +82,7 @@ example (1 second and 100 nanoseconds):
 `./giftoa.py -i gif_file.gif -fss 1 -fsn 100 -o output_exe [jp2a options...]`
 
 
-The maximum value for `-fss` is 2147483647, the value must also be a whole number.
+The minimum value is 0 and the maximum value is 2147483647, the value must also be a whole number.
 
 
 ## C Compiler Selection
