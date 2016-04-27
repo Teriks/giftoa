@@ -181,7 +181,7 @@ parser = argparse.ArgumentParser(
     epilog=
     'All arguments following the arguments listed above will be '
     'passed as options to jp2a.  ANSI colors are not supported...  '
-    'Also note that this program requires: gcc, libncurses-dev, jp2a and ImageMagick.'
+    'Also note that this program requires: gcc, libncurses-dev, jp2a and graphicsmagick.'
 )
 
 parser.add_argument('-i', '--input', help='The GIF file.', required=True, type=lambda file: is_valid_file(parser, file))
