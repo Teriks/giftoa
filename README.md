@@ -31,9 +31,13 @@ On debian based distributions:
 
 **or**
 
-You can specify a directory containing .jpg or .jpeg files, the images in the directory
-will be used as frames for the animation.  They will be sorted in natural order by name, so you
-should include some kind of frame number at the beginning or end of each file name.
+You can specify a directory containing JPEG files, the images in the directory
+will be used as frames for the animation.
+
+They will be sorted in natural order by name, so you should include some kind of
+frame number at the beginning or end of each file name.
+
+Only JPEG files will be considered, other types of files will be ignored.
 
 If you do this, you must specify the name of the output executable explicitly.
 
@@ -52,6 +56,8 @@ example:
 Note that `--version-sort` is specific to GNU sort.
 
 The above command emulates how passing a directory to `-i` behaves for the most part.
+
+giftoa will not accept non JPEG file paths from STDIN, it will produce an error when a non JPEG is detected.
 
 
 ## Frame Delay / FPS
