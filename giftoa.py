@@ -271,7 +271,7 @@ def main():
                 success = jp2a_cvars_into_file(environment=environment,
                                                file_out=file,
                                                var_name='frame_' + str(frame),
-                                               image_filename=temp_dir + '/' + image,
+                                               image_filename=os.path.join(temp_dir, image),
                                                jp2a_args=jp2a_args)
 
                 if not success:
