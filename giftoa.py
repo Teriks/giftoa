@@ -22,6 +22,10 @@
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+__author__ = 'Teriks'
+__copyright__ = 'Copyright (c) 2016 Teriks'
+__license__ = 'Three Clause BSD'
+__version__ = '0.1.0'
 
 import sys
 import os.path
@@ -199,6 +203,9 @@ parser = argparse.ArgumentParser(
     'passed as options to jp2a.  ANSI colors are not supported...  '
     'Also note that this program requires: gcc, libncurses-dev, jp2a and ImageMagick.'
 )
+
+parser.add_argument('-v', '--version', action='version', 
+                    version='%(prog)s {version}'.format(version=__version__))
 
 parser.add_argument('-i', '--input',
                     help='A GIF file or a directory full of jp2a compatible image frames (jpegs).  '
