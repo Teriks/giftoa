@@ -94,16 +94,18 @@ int main(int argc, char *argv[])
 
     while(true) 
     {
+        clock_gettime(CLOCK_MONOTONIC, &startTime);
+
         if(getch() == 27)
         {
             break;
         }
 
-        clock_gettime(CLOCK_MONOTONIC, &startTime);
-
         clear();
         mvaddstr(0, 0, frames[frame]);
         refresh();
+
+        frame = frame == framecnt-1 ? 0 : frame+1;
 
         clock_gettime(CLOCK_MONOTONIC, &endTime);
 
@@ -116,8 +118,6 @@ int main(int argc, char *argv[])
         computedDelay.tv_nsec = tv_nsec < 0 ? 0 : tv_nsec;
 
         nanosleep(&computedDelay, NULL);
-
-        frame = frame == framecnt-1 ? 0 : frame+1;
     }
 
     cleanup();
