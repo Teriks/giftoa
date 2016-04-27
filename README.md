@@ -19,11 +19,11 @@ On debian based distributions.
 
 ## Basic Usage
 
-`giftoa.py -i gif_file.gif -o output_exe [jp2a options...]`
+`./giftoa.py -i gif_file.gif -o output_exe [jp2a options...]`
 
 **or**
 
-`giftoa.py -i gif_file.gif [jp2a options...]`  (Executable is named after GIF file)
+`./giftoa.py -i gif_file.gif [jp2a options...]`  (Executable is named after GIF file)
 
 
 ## Frame Delay
@@ -38,7 +38,7 @@ The maximum value is 999999999 nanoseconds, the value must be a whole number.
 
 example:
 
-`giftoa.py -i gif_file.gif -fsn 100000000 -o output_exe [jp2a options...]`
+`./giftoa.py -i gif_file.gif -fsn 100000000 -o output_exe [jp2a options...]`
 
 
 ===
@@ -50,7 +50,7 @@ This is in addition to whatever amount of nanoseconds you specify.
 
 example (1 second and 100 nanoseconds):
 
-`giftoa.py -i gif_file.gif -fss 1 -fsn 100 -o output_exe [jp2a options...]`
+`./giftoa.py -i gif_file.gif -fss 1 -fsn 100 -o output_exe [jp2a options...]`
 
 
 The maximum value for `-fss` is 2147483647, the value must also be a whole number.
@@ -63,7 +63,7 @@ The maximum value for `-fss` is 2147483647, the value must also be a whole numbe
 
 examples:
 
-`giftoa.py -i gif_file.gif -cc clang -o output_exe [jp2a options...]`
+`./giftoa.py -i gif_file.gif -cc clang -o output_exe [jp2a options...]`
 
 
 ## jp2a Options
