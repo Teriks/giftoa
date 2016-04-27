@@ -362,13 +362,13 @@ def main():
 
             image_paths = (os.path.join(input_path, path) for path in image_paths)
 
-        program_file = os.path.join(temp_dir, 'program.c')
+        source_file_path = os.path.join(temp_dir, 'program.c')
 
-        with open(program_file, 'w') as out_c_source:
+        with open(source_file_path, 'w') as source_file:
 
             frame_cvar_names = []
 
-            out_c_source.write(C_HEADERS)
+            source_file.write(C_HEADERS)
 
             for frame, image_path in enumerate(image_paths):
 
@@ -377,7 +377,7 @@ def main():
                 frame_cvar_names.append(cvar_name)
 
                 success = write_jp2a_cvar_into_file(environment=environment,
-                                                    file=out_c_source,
+                                                    file=source_file,
                                                     var_name=cvar_name,
                                                     image_filename=image_path,
                                                     jp2a_args=jp2a_args)
@@ -385,11 +385,11 @@ def main():
                 if not success:
                     return 1
 
-            out_c_source.write('#define GIFTOA_FRAMES_INIT {' + ','.join(frame_cvar_names) + '}\n')
-            out_c_source.write(get_framedelay_init_macro_define('GIFTOA_FRAMEDELAY_INIT', args))
-            out_c_source.write(C_PROGRAM)
+            source_file.write('#define GIFTOA_FRAMES_INIT {' + ','.join(frame_cvar_names) + '}\n')
+            source_file.write(get_framedelay_init_macro_define('GIFTOA_FRAMEDELAY_INIT', args))
+            source_file.write(C_PROGRAM)
 
-        subprocess.call([compiler, program_file, '-o', out_file, '-lcurses'])
+        subprocess.call([compiler, source_file_path, '-o', out_file, '-lcurses'])
 
         return 0
 
