@@ -233,7 +233,8 @@ def main():
 
     with tempfile.TemporaryDirectory() as temp_dir:
 
-        subprocess.call(['convert', '-coalesce', in_file, os.path.join(temp_dir, '%d.jpg')])
+        subprocess.call(['gm', 'convert', in_file, '-coalesce', '+adjoin',
+                         os.path.join(temp_dir, '%d.jpg')])
 
         images = sorted(os.listdir(temp_dir), key=natural_sort_key)
 
