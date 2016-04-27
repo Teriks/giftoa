@@ -1,6 +1,6 @@
 ## Details
 
-Compiles a native binary that plays a GIF file in ASCII on the terminal using ncurses.
+Compiles a native binary that plays a GIF in ASCII on the terminal using ncurses.
 
 
 ## Requirements
