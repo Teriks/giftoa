@@ -322,7 +322,6 @@ def main():
         environment['TERM'] = 'xterm'
 
     frame_sleep_init_string = get_framesleep_init_string(args)
-    print(frame_sleep_init_string)
 
     with tempfile.TemporaryDirectory() as temp_dir:
 
