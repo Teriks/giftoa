@@ -62,8 +62,8 @@ void signal_handler(int s)
 int main(int argc, char *argv[]) 
 {
     struct timespec frameDelay;
-    !FRAMESLEEP_INIT!
 
+    !FRAMESLEEP_INIT!
 
     struct sigaction sigIntHandler;
 
@@ -88,6 +88,10 @@ int main(int argc, char *argv[])
 
     nodelay(mainwin, 1);
 
+    struct timespec startTime;
+    struct timespec endTime;
+    struct timespec computedDelay;
+
     while(true) 
     {
         if(getch() == 27)
@@ -95,11 +99,18 @@ int main(int argc, char *argv[])
             break;
         }
 
-        clear();
+        clock_gettime(CLOCK_MONOTONIC, &startTime);
 
+        clear();
         mvaddstr(0, 0, frames[frame]);
         refresh();
-        nanosleep(&frameDelay, NULL);
+
+	clock_gettime(CLOCK_MONOTONIC, &endTime);
+
+        computedDelay.tv_sec = frameDelay.tv_sec - (endTime.tv_sec - startTime.tv_sec);
+        computedDelay.tv_nsec = frameDelay.tv_nsec - (endTime.tv_nsec - startTime.tv_nsec);
+
+        nanosleep(&computedDelay, NULL);
 
         frame = frame == framecnt-1 ? 0 : frame+1;
     }
