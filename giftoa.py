@@ -25,7 +25,7 @@
 __author__ = 'Teriks'
 __copyright__ = 'Copyright (c) 2016 Teriks'
 __license__ = 'Three Clause BSD'
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 
 import sys
 import os.path
@@ -306,9 +306,14 @@ def get_framedelay_init_macro_define(macro_name, args):
         frame_sleep_seconds = args.framesleep_seconds if \
             args.framesleep_seconds else 0
 
-        # default to 10 fps, 0.1 second frame delay
+        # default to 10 fps (0.1 second frame delay) if -fss
+        # and -fsn are not specified.
+        #
+        # if -fss is specified and -fsn is not, -fsn defaults to 0
+        # instead of 100000000
         frame_sleep_nanoseconds = args.framesleep_nanoseconds if \
-            args.framesleep_nanoseconds else 100000000
+            args.framesleep_nanoseconds else 100000000 if \
+            not args.framesleep_seconds else 0
 
     return '#define {macro_name}(VAR) ' \
            'VAR.tv_nsec = {nanoseconds}; ' \

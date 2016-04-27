@@ -82,6 +82,8 @@ This is in addition to whatever amount of nanoseconds you specify.
 
 This option cannot be used with `-fps` / `--frames-per-second`.
 
+`-fsn` will default to 0 when `-fss` is used and additional nanoseconds are not explicitly specified.
+
 
 example (1 second and 100 nanoseconds):
 
