@@ -35,9 +35,13 @@ On debian based distributions.
 
 The maximum value is 999999999 nanoseconds, the value must be a whole number.
 
+
 example:
 
 `giftoa.py -i gif_file.gif -fsn 100000000 -o output_exe [jp2a options...]`
+
+
+===
 
 
 `-fss` or `--framesleep-seconds` can be used to adjust the delay in seconds between GIF frames.
