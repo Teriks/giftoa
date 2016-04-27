@@ -42,7 +42,7 @@ If you do this, you must specify the name of the output executable explicitly.
 
 `-fps` or `--frames-per-second` can be used to set a target FPS for the animation.
 
-The option cannot be used together with `-fss` or `-fsn`.
+This option cannot be used together with `-fss` or `-fsn`.
 
 The minimum value is 1 and the maximum value is 1000000000, the value must be a whole number.
 
