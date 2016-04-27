@@ -77,19 +77,20 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Error initialising ncurses.\\n");
         exit(EXIT_FAILURE);
     }
-    
-    
+        
     const char * frames[] = GIFTOA_FRAMES_INIT;
     int framecnt = sizeof(frames) / sizeof(const char*);
 
 
-    int frame = 0;
+    curs_set(0);
 
     nodelay(mainwin, 1);
 
     struct timespec startTime;
     struct timespec endTime;
     struct timespec computedDelay;
+
+    int frame = 0;
 
     while(true) 
     {
