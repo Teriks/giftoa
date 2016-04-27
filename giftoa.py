@@ -157,18 +157,18 @@ def is_valid_file(parser, file):
 def is_valid_framesleep_seconds(parser, sleep):
     i_value = int(sleep)
     if i_value > 2147483647:
-        parser.error('The --framesleep-seconds value given was greater than 2147483647.')
+        parser.error('--framesleep-seconds cannot be given a value greater than 2147483647.')
     if i_value < 0:
-        parser.error('The --framesleep-seconds value given was less than 0.')
+        parser.error('--framesleep-seconds cannot be given a value less than 0.')
     return sleep
 
 
 def is_valid_framesleep_nanoseconds(parser, sleep):
     i_value = int(sleep)
     if i_value > 999999999:
-        parser.error('The --framesleep-nanoseconds value given was greater than 999999999.')
+        parser.error('--framesleep-nanoseconds cannot be given a value greater than 999999999.')
     if i_value < 0:
-        parser.error('The --framesleep-nanoseconds value given was less than 0.')
+        parser.error('--framesleep-nanoseconds cannot be given a value less than 0.')
     return sleep
 
 
@@ -184,7 +184,8 @@ parser = argparse.ArgumentParser(
     'Also note that this program requires: gcc, libncurses-dev, jp2a and graphicsmagick.'
 )
 
-parser.add_argument('-i', '--input', help='The GIF file.', required=True, type=lambda file: is_valid_file(parser, file))
+parser.add_argument('-i', '--input', help='The GIF file.', required=True, dest='input_gif',
+                    type=lambda file: is_valid_file(parser, file))
 
 parser.add_argument('-o', '--output',
                     help='The name of the output file.  If none is supplied it is taken from the name of the GIF.',
@@ -218,8 +219,8 @@ def main():
     jp2a_args = giftoa_args[1]
     giftoa_args = giftoa_args[0]
 
-    in_file = giftoa_args.input
-    out_file = os.path.splitext(os.path.basename(in_file))[0] if not giftoa_args.out_file else giftoa_args.out_file
+    in_gif_path = giftoa_args.input_gif
+    out_file = os.path.splitext(os.path.basename(in_gif_path))[0] if not giftoa_args.out_file else giftoa_args.out_file
     compiler = giftoa_args.compiler
 
     environment = os.environ.copy()
@@ -238,7 +239,7 @@ def main():
         subprocess.call([
             'convert', 
             '-background', 'none', 
-            in_file, 
+            in_gif_path, 
             '-coalesce', 
             '-bordercolor', 'none', 
             '-frame', '0', file_spec])
