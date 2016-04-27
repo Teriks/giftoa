@@ -26,8 +26,8 @@ On debian based distributions:
 
 **or**
 
-You can specify a directory instead of a GIF, files with .jpg or .jpeg in the directory
-will be used as frames for the animation.  They are sorted in natural order by name, so you
+You can specify a directory containing .jpg or .jpeg files, the images in the directory
+will be used as frames for the animation.  They will be sorted in natural order by name, so you
 should include some kind of frame number at the beginning or end of each file name.
 
 If you do this, you must specify the name of the output executable explicitly.
