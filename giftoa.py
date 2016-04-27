@@ -203,7 +203,7 @@ parser.add_argument('-i', '--input',
                          'you should include a frame number.  Specifying the output file with --output is '
                          'required when a directory is passed to --input.',
 
-		    required=True, dest='input_path',
+                    required=True, dest='input_path',
                     type=lambda file_or_dir: is_valid_input(parser, file_or_dir))
 
 parser.add_argument('-o', '--output',
@@ -235,10 +235,8 @@ parser.add_argument('-cc', '--compiler', type=str, default='cc',
                     help='The command used to invoke the C compiler, default is "cc".')
 
 
-jp2a_known_extensions = set([
-'.jpg',
-'.jpeg'
-])
+jp2a_known_extensions = {'.jpg', '.jpeg'}
+
 
 def main():
     giftoa_args = parser.parse_known_args()
