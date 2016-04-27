@@ -43,13 +43,13 @@ If you do this, you must specify the name of the output executable explicitly.
 
 **or**
 
-Use --stdin-frames to read a newline separated list of jpeg frames from standard input.
+Use `--stdin-frames` to read a newline separated list of jpeg frames from standard input.
 
 example:
 
 `find image_dir -mindepth 1 | sort --version-sort | ./giftoa.py --stdin-frames -o output_exe [jp2a options...]`
 
-Note that --version-sort is specific to GNU sort.
+Note that `--version-sort` is specific to GNU sort.
 
 
 ## Frame Delay / FPS
