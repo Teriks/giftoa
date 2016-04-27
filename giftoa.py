@@ -25,7 +25,7 @@
 __author__ = 'Teriks'
 __copyright__ = 'Copyright (c) 2016 Teriks'
 __license__ = 'Three Clause BSD'
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 
 import sys
 import os.path
@@ -36,10 +36,10 @@ import argparse
 import imghdr
 
 C_HEADERS = """
-#include "signal.h"
-#include "curses.h"
-#include "stdlib.h"
-#include "time.h"
+#include <signal.h>
+#include <curses.h>
+#include <stdlib.h>
+#include <time.h>
 
 """
 
