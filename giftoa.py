@@ -210,8 +210,8 @@ parser.add_argument('-i', '--input',
 
 parser.add_argument('-o', '--output',
                     help='The name of the output executable.  '
-                         'If a GIF file is passed and no output name is supplied '
-                         'the name of the file without its extension is used.  '
+                         'If a GIF file is passed and no output name is supplied, '
+                         'the name of the input file without its extension is used.  '
                          'When passing a directory to -i / --input, you must specify an output file name.',
                     dest='out_file')
 
