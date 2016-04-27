@@ -37,12 +37,28 @@ If you do this, you must specify the name of the output executable explicitly.
 `./giftoa.py -i directory -o output_file_name_required.exe [jp2a options...]`
 
 
-## Frame Delay
+## Frame Delay / FPS
+
+
+`-fps` or `--frames-per-second` can be used to set a target FPS for the animation.
+
+The option cannot be used together with `-fss` or `-fsn`.
+
+The minimum value is 1 and the maximum value is 1000000000, the value must be a whole number.
+
+
+example:
+
+`./giftoa.py -i gif_file.gif -fps 25 -o output_exe [jp2a options...]`
+
+
+===
 
 
 `-fsn` or `--framesleep-nanoseconds` can be used to adjust the delay in nanoseconds between GIF frames.
 
-100000000 nanoseconds, (0.1 second) is the default.
+This option cannot be used with `-fps` / `--frames-per-second`.
+
 
 The maximum value is 999999999 nanoseconds, the value must be a whole number.
 
@@ -57,6 +73,8 @@ example:
 
 `-fss` or `--framesleep-seconds` can be used to adjust the delay in seconds between GIF frames.
 This is in addition to whatever amount of nanoseconds you specify.
+
+This option cannot be used with `-fps` / `--frames-per-second`.
 
 
 example (1 second and 100 nanoseconds):
