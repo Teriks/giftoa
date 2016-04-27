@@ -247,7 +247,8 @@ def natural_sort_key(s, _nsre=re.compile('([0-9]+)')):
             for text in re.split(_nsre, s)]
 
 
-def jp2a_cvars_into_file(environment, file_out, var_name, image_filename, jp2a_args):
+def write_jp2a_cvar_into_file(environment, file, var_name, image_filename, jp2a_args):
+
     jp2a = ['jp2a', image_filename]
     jp2a.extend(jp2a_args)
 
@@ -268,12 +269,12 @@ def jp2a_cvars_into_file(environment, file_out, var_name, image_filename, jp2a_a
         for line in data[0].decode().split('\n'):
             if line != '':
                 if first_line:
-                    file_out.write('const char* ' + var_name + '= "\\\n' + line.rstrip() + '\\n\\\n')
+                    file.write('const char* ' + var_name + '= "\\\n' + line.rstrip() + '\\n\\\n')
                     first_line = False
                 else:
-                    file_out.write(line.rstrip() + '\\n\\\n')
+                    file.write(line.rstrip() + '\\n\\\n')
 
-        file_out.write('";\n\n')
+        file.write('";\n\n')
 
     return success
 
@@ -367,11 +368,11 @@ def main():
 
                 frame_cvar_names.append(cvar_name)
 
-                success = jp2a_cvars_into_file(environment=environment,
-                                               file_out=out_c_source,
-                                               var_name=cvar_name,
-                                               image_filename=image_path,
-                                               jp2a_args=jp2a_args)
+                success = write_jp2a_cvar_into_file(environment=environment,
+                                                    file=out_c_source,
+                                                    var_name=cvar_name,
+                                                    image_filename=image_path,
+                                                    jp2a_args=jp2a_args)
 
                 if not success:
                     return 1
