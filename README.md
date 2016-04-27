@@ -51,6 +51,8 @@ example:
 
 Note that `--version-sort` is specific to GNU sort.
 
+The above command emulates how passing a directory to `-i` behaves for the most part.
+
 
 ## Frame Delay / FPS
 
