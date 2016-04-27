@@ -106,8 +106,13 @@ int main(int argc, char *argv[])
 
         clock_gettime(CLOCK_MONOTONIC, &endTime);
 
-        computedDelay.tv_sec = frameDelay.tv_sec - (endTime.tv_sec - startTime.tv_sec);
-        computedDelay.tv_nsec = frameDelay.tv_nsec - (endTime.tv_nsec - startTime.tv_nsec);
+        time_t tv_sec = frameDelay.tv_sec - (endTime.tv_sec - startTime.tv_sec);
+        long tv_nsec = frameDelay.tv_nsec - (endTime.tv_nsec - startTime.tv_nsec);
+
+        // hope that time_t is signed?
+
+        computedDelay.tv_sec = tv_sec < 0 ? 0 : tv_sec;
+        computedDelay.tv_nsec = tv_nsec < 0 ? 0 : tv_nsec;
 
         nanosleep(&computedDelay, NULL);
 
