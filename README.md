@@ -25,6 +25,17 @@ On debian based distributions.
 
 `./giftoa.py -i gif_file.gif [jp2a options...]`  (Executable is named after GIF file)
 
+**or**
+
+You can specify a directory instead of a GIF, files with .jpg or .jpeg in the directory
+will be used as frames for the animation.  They are sorted in natural order by name, so you
+should include some kind of frame number at the beginning or end of each file name.
+
+If you do this, you must specify the name of the output executable explicitly.
+
+
+`./giftoa.py -i directory -o output_file_name_required.exe [jp2a options...]`
+
 
 ## Frame Delay
 
