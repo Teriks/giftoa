@@ -158,11 +158,13 @@ def jp2a_cvars_into_file(environment, file_out, var_name, image_filename, jp2a_a
     return success
 
 
-def is_valid_file(parser, file):
-    if os.path.isfile(file):
-        return file
+def is_valid_input(parser, file_or_dir):
+    if os.path.isfile(file_or_dir):
+        return file_or_dir
+    elif os.path.isdir(file_or_dir):
+        return file_or_dir
     else:
-        parser.error('The file "{file}" does not exist.'.format(file=file))
+        parser.error('The path "{path}" is not a file or directory.'.format(path=file_or_dir))
 
 
 def is_valid_framesleep_seconds(parser, sleep):
@@ -195,11 +197,19 @@ parser = argparse.ArgumentParser(
     'Also note that this program requires: gcc, libncurses-dev, jp2a and ImageMagick.'
 )
 
-parser.add_argument('-i', '--input', help='The GIF file.', required=True, dest='input_gif',
-                    type=lambda file: is_valid_file(parser, file))
+parser.add_argument('-i', '--input', 
+                    help='A GIF file, or a directory full of jp2a compatible image frames (jpegs).  '
+                         'If you provide a directory, the jpeg images are sorted by name in natural order, '
+                         'you should include a frame number.  Specifying the output file with --output is '
+                         'required when a directory is passed to --input.',
+
+		    required=True, dest='input_path',
+                    type=lambda file_or_dir: is_valid_input(parser, file_or_dir))
 
 parser.add_argument('-o', '--output',
-                    help='The name of the output file.  If none is supplied it is taken from the name of the GIF.',
+                    help='The name of the output executable.  '
+                         'If none is supplied and a GIF is passed, it is taken from the name of the input GIF.  '
+                         'You must supply an output file name when passing a directory to --input.',
                     dest='out_file')
 
 
@@ -225,13 +235,18 @@ parser.add_argument('-cc', '--compiler', type=str, default='cc',
                     help='The command used to invoke the C compiler, default is "cc".')
 
 
+jp2a_known_extensions = set([
+'.jpg',
+'.jpeg'
+])
+
 def main():
     giftoa_args = parser.parse_known_args()
     jp2a_args = giftoa_args[1]
     giftoa_args = giftoa_args[0]
 
-    in_gif_path = giftoa_args.input_gif
-    out_file = os.path.splitext(os.path.basename(in_gif_path))[0] if not giftoa_args.out_file else giftoa_args.out_file
+    in_path = giftoa_args.input_path
+    out_file = giftoa_args.out_file
     compiler = giftoa_args.compiler
 
     environment = os.environ.copy()
@@ -245,39 +260,58 @@ def main():
 
     with tempfile.TemporaryDirectory() as temp_dir:
 
-        subprocess.call([
-            'convert', 
-            '-background', 'none', 
-            in_gif_path, 
-            '-coalesce', 
-            '-bordercolor', 'none', 
-            '-frame', '0', os.path.join(temp_dir, '%d.jpg')])
+        if os.path.isfile(in_path):
+            out_file = os.path.splitext(os.path.basename(in_path))[0] if not out_file else out_file
 
-        images = sorted(os.listdir(temp_dir), key=natural_sort_key)
+            subprocess.call([
+                'convert', 
+                '-background', 'none', 
+                in_path, 
+                '-coalesce', 
+                '-bordercolor', 'none', 
+                '-frame', '0', os.path.join(temp_dir, '%d.jpg')])
+
+            image_paths = (os.path.join(temp_dir, path) for path in sorted(os.listdir(temp_dir), key=natural_sort_key))
+        else:
+            if not out_file:
+                print('No output file specified, an output file must be specified '
+                      'when passing a directory to --input or -i.', file=sys.stderr)
+                return 1
+
+            files = (file for file in os.listdir(in_path) if os.path.splitext(file)[1] in jp2a_known_extensions)
+            images = sorted(files, key=natural_sort_key)
+
+            del files
+
+            if len(images) == 0:
+                print('No jp2a compatible images found in directory "{dir}".'.format(dir=in_path),
+                      file=sys.stderr)
+                return 1
+
+            image_paths = (os.path.join(in_path, path) for path in images)
+            
+            del images
 
         program_file = os.path.join(temp_dir, 'program.c')
 
         with open(program_file, 'w') as file:
 
             frames = []
-            frame = 0
 
             file.write(C_HEADERS)
 
-            for image in images:
+            for frame, image_path in enumerate(image_paths):
 
                 frames.append('frame_' + str(frame))
 
                 success = jp2a_cvars_into_file(environment=environment,
                                                file_out=file,
                                                var_name='frame_' + str(frame),
-                                               image_filename=os.path.join(temp_dir, image),
+                                               image_filename=image_path,
                                                jp2a_args=jp2a_args)
 
                 if not success:
                     return 1
-
-                frame += 1
 
             file.write('#define FRAMES_INIT {' + ','.join(frames) + '}')
             file.write(C_PROGRAM.replace('!FRAMESLEEP_INIT!', frame_sleep_init, 1))
