@@ -29,6 +29,7 @@ import tempfile
 import subprocess
 import re
 import argparse
+import json
 
 C_HEADERS = """
 #include "signal.h"
@@ -274,11 +275,12 @@ def write_jp2a_cvar_into_file(environment, file, var_name, image_filename, jp2a_
 
         for line in data[0].decode().split('\n'):
             if line != '':
+                str_content = line.rstrip().replace('\\','\\\\')
                 if first_line:
-                    file.write('const char* ' + var_name + '= "\\\n' + line.rstrip() + '\\n\\\n')
+                    file.write('const char* ' + var_name + '= "\\\n' + str_content + '\\n\\\n')
                     first_line = False
                 else:
-                    file.write(line.rstrip() + '\\n\\\n')
+                    file.write(str_content + '\\n\\\n')
 
         file.write('";\n\n')
 
