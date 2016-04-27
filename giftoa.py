@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 {
     struct timespec frameDelay;
 
-    !FRAMESLEEP_INIT!
+    GIFTOA_FRAMESLEEP_INIT
 
     struct sigaction sigIntHandler;
 
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
     }
     
     
-    const char * frames[] = FRAMES_INIT;
+    const char * frames[] = GIFTOA_FRAMES_INIT;
     int framecnt = sizeof(frames) / sizeof(const char*);
 
 
@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
         mvaddstr(0, 0, frames[frame]);
         refresh();
 
-	clock_gettime(CLOCK_MONOTONIC, &endTime);
+        clock_gettime(CLOCK_MONOTONIC, &endTime);
 
         computedDelay.tv_sec = frameDelay.tv_sec - (endTime.tv_sec - startTime.tv_sec);
         computedDelay.tv_nsec = frameDelay.tv_nsec - (endTime.tv_nsec - startTime.tv_nsec);
@@ -194,7 +194,7 @@ parser = argparse.ArgumentParser(
 )
 
 parser.add_argument('-i', '--input',
-                    help='A GIF file, or a directory full of jp2a compatible image frames (jpegs).  '
+                    help='A GIF file or a directory full of jp2a compatible image frames (jpegs).  '
                          'If you provide a directory, the jpeg images are sorted by name in natural order, '
                          'you should include a frame number.  Specifying the output file with --output is '
                          'required when a directory is passed to --input.',
@@ -204,15 +204,16 @@ parser.add_argument('-i', '--input',
 
 parser.add_argument('-o', '--output',
                     help='The name of the output executable.  '
-                         'If none is supplied and a GIF is passed, it is taken from the name of the input GIF.  '
-                         'You must supply an output file name when passing a directory to --input.',
+                         'If a GIF file is passed and no output name is supplied '
+                         'the name of the file without its extension is used.  '
+                         'When passing a directory to -i / --input, you must specify an output file name.',
                     dest='out_file')
 
 parser.add_argument('-fps', '--frames-per-second', default=None, dest='frames_per_second',
 
                     type=lambda sleep: is_valid_frames_per_second(parser, sleep),
 
-                    help='The frames per second to attempt to play the animation at, the minimum value is 1 '
+                    help='The frames per second to attempt to play the animation at.  The minimum value is 1 '
                          'and the maximum value is 1000000000, FPS must be a whole number.  '
                          'This cannot be used when either -fss or -fsn is specified.'
                     )
@@ -293,7 +294,7 @@ def get_framesleep_init_string(args):
         frame_sleep_nanoseconds = args.framesleep_nanoseconds if \
             args.framesleep_nanoseconds else 100000000
 
-    return 'frameDelay.tv_nsec = {nanoseconds};\n' \
+    return 'frameDelay.tv_nsec = {nanoseconds};' \
            'frameDelay.tv_sec = {seconds};' \
            .format(nanoseconds=frame_sleep_nanoseconds,
                    seconds=frame_sleep_seconds)
@@ -351,27 +352,30 @@ def main():
 
         program_file = os.path.join(temp_dir, 'program.c')
 
-        with open(program_file, 'w') as file:
+        with open(program_file, 'w') as out_c_source:
 
-            frames = []
+            frame_cvar_names = []
 
-            file.write(C_HEADERS)
+            out_c_source.write(C_HEADERS)
 
             for frame, image_path in enumerate(image_paths):
 
-                frames.append('frame_' + str(frame))
+                cvar_name = 'frame_' + str(frame)
+
+                frame_cvar_names.append(cvar_name)
 
                 success = jp2a_cvars_into_file(environment=environment,
-                                               file_out=file,
-                                               var_name='frame_' + str(frame),
+                                               file_out=out_c_source,
+                                               var_name=cvar_name,
                                                image_filename=image_path,
                                                jp2a_args=jp2a_args)
 
                 if not success:
                     return 1
 
-            file.write('#define FRAMES_INIT {' + ','.join(frames) + '}')
-            file.write(C_PROGRAM.replace('!FRAMESLEEP_INIT!', frame_sleep_init_string, 1))
+            out_c_source.write('#define GIFTOA_FRAMES_INIT {' + ','.join(frame_cvar_names) + '}\n')
+            out_c_source.write('#define GIFTOA_FRAMESLEEP_INIT ' + frame_sleep_init_string + '\n')
+            out_c_source.write(C_PROGRAM)
 
         subprocess.call([compiler, program_file, '-o', out_file, '-lcurses'])
 
