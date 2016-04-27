@@ -2,6 +2,8 @@
 
 Compiles a native binary that plays a GIF in ASCII on the terminal using ncurses.
 
+![Demo](https://github.com/Teriks/giftoa/raw/master/readme_demo.gif)
+
 
 ## Requirements
 
