@@ -11,10 +11,9 @@ Compiles a native binary that plays a GIF in ASCII on the terminal using ncurses
 * jp2a
 * libncurses-dev development package for your distro
 
+On debian based distributions:
 
 `sudo apt-get install gcc python3 imagemagick jp2a libncurses-dev`
-
-On debian based distributions.
 
 
 ## Basic Usage
