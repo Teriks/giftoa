@@ -12,6 +12,11 @@ Compiles a native binary that plays a GIF file in ASCII on the terminal using nc
 * libncurses-dev development package for your distro
 
 
+`sudo apt-get install gcc python3 ImageMagick jp2a libncurses-dev`
+
+On debian based distributions.
+
+
 ## Basic Usage
 
 `giftoa.py -i gif_file.gif -o output_exe [jp2a options...]`
