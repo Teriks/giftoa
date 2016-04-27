@@ -25,7 +25,7 @@
 __author__ = 'Teriks'
 __copyright__ = 'Copyright (c) 2016 Teriks'
 __license__ = 'Three Clause BSD'
-__version__ = '0.1.2'
+__version__ = '0.2.0'
 
 import sys
 import os.path
@@ -33,7 +33,7 @@ import tempfile
 import subprocess
 import re
 import argparse
-import json
+import imghdr
 
 C_HEADERS = """
 #include "signal.h"
@@ -134,6 +134,8 @@ int main(int argc, char *argv[])
 
 def is_valid_input(parser, file_or_dir):
     if os.path.isfile(file_or_dir):
+        if imghdr.what(file_or_dir) != 'gif':
+            parser.error('"{path}" is not a GIF file.'.format(path=file_or_dir))
         return file_or_dir
     elif os.path.isdir(file_or_dir):
         return file_or_dir
@@ -213,10 +215,15 @@ parser.add_argument('-i', '--input',
                          'you should include a frame number.  Specifying the output file with --output is '
                          'required when a directory is passed to --input.',
 
-                    required=True, dest='input_path',
+                    dest='input_path',
                     type=lambda file_or_dir: is_valid_input(parser, file_or_dir))
 
+parser.add_argument('--stdin-frames', dest='stdin_frames', action='store_true',
+                    help='Accept input frames from stdin as '
+                         'a newline separated list of jpeg file paths.')
+
 parser.add_argument('-o', '--output',
+
                     help='The name of the output executable.  '
                          'If a GIF file is passed and no output name is supplied, '
                          'the name of the input file without its extension is used.  '
@@ -252,8 +259,6 @@ parser.add_argument('-fsn', '--framesleep-nanoseconds', default=None, dest='fram
 
 parser.add_argument('-cc', '--compiler', type=str, default='cc',
                     help='The command used to invoke the C compiler, default is "cc".')
-
-jp2a_known_extensions = {'.jpg', '.jpeg'}
 
 
 def natural_sort_key(s, _nsre=re.compile('([0-9]+)')):
@@ -323,8 +328,17 @@ def get_framedelay_init_macro_define(macro_name, args):
                    seconds=frame_sleep_seconds)
 
 
-def main():
+def yield_paths_from_stdin():
+    for path in sys.stdin:
+        path = path.rstrip()
+        if not os.path.isfile(path):
+            parser.error('File "{file}" from stdin does not exist.'.format(file=path))
+        if imghdr.what(path) != 'jpeg':
+            parser.error('File "{file}" from stdin is not a JPEG.'.format(file=path))
+        yield path
 
+
+def main():
     args = parser.parse_known_args()
     jp2a_args = args[1]
     args = args[0]
@@ -335,6 +349,13 @@ def main():
         # parser.error calls exit(2) immediately
 
     input_path = args.input_path
+
+    if args.stdin_frames and input_path:
+        parser.error('-i/--input and -stdin-frames cannot be used together.')
+
+    if not input_path and not args.stdin_frames:
+        parser.error('-i/--input must be specified when not using --stdin-frames.')
+
     out_file = args.out_file
     compiler = args.compiler
 
@@ -345,7 +366,9 @@ def main():
 
     with tempfile.TemporaryDirectory() as temp_dir:
 
-        if os.path.isfile(input_path):
+        if args.stdin_frames:
+            image_paths = yield_paths_from_stdin()
+        elif os.path.isfile(input_path):
             if not out_file:
                 out_file = os.path.splitext(os.path.basename(input_path))[0]
 
@@ -366,7 +389,7 @@ def main():
                 # parser.error calls exit(2) immediately
 
             image_paths = (file for file in os.listdir(input_path) if
-                           os.path.splitext(file)[1] in jp2a_known_extensions)
+                           imghdr.what(os.path.join(input_path, file)) == 'jpeg')
 
             image_paths = sorted(image_paths, key=natural_sort_key)
 
