@@ -215,7 +215,7 @@ parser.add_argument('-i', '--input',
                          'you should include a frame number.  Specifying the output file with --output is '
                          'required when a directory is passed to --input.',
 
-                    dest='input_path',
+                    dest='input_path', default=None,
                     type=lambda file_or_dir: is_valid_input(parser, file_or_dir))
 
 parser.add_argument('--stdin-frames', dest='stdin_frames', action='store_true',
@@ -351,7 +351,7 @@ def main():
     input_path = args.input_path
 
     if args.stdin_frames and input_path:
-        parser.error('-i/--input and -stdin-frames cannot be used together.')
+        parser.error('-i/--input and --stdin-frames cannot be used together.')
 
     if not input_path and not args.stdin_frames:
         parser.error('-i/--input must be specified when not using --stdin-frames.')
