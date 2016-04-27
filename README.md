@@ -7,12 +7,12 @@ Compiles a native binary that plays a GIF file in ASCII on the terminal using nc
 
 * gcc or compatible compiler, you can specify the compiler with `-cc` or `--compiler`
 * Python 3.x
-* graphicsmagick
+* ImageMagick
 * jp2a
 * libncurses-dev development package for your distro
 
 
-`sudo apt-get install gcc python3 graphicsmagick jp2a libncurses-dev`
+`sudo apt-get install gcc python3 ImageMagick jp2a libncurses-dev`
 
 On debian based distributions.
 
