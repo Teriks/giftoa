@@ -234,15 +234,13 @@ def main():
 
     with tempfile.TemporaryDirectory() as temp_dir:
 
-        file_spec = os.path.join(temp_dir, '%d.jpg')
-
         subprocess.call([
             'convert', 
             '-background', 'none', 
             in_gif_path, 
             '-coalesce', 
             '-bordercolor', 'none', 
-            '-frame', '0', file_spec])
+            '-frame', '0', os.path.join(temp_dir, '%d.jpg')])
 
         images = sorted(os.listdir(temp_dir), key=natural_sort_key)
 
