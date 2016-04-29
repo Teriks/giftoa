@@ -22,11 +22,6 @@
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__ = 'Teriks'
-__copyright__ = 'Copyright (c) 2016 Teriks'
-__license__ = 'Three Clause BSD'
-__version__ = '0.2.1'
-
 import sys
 import os.path
 import tempfile
@@ -34,6 +29,13 @@ import subprocess
 import re
 import argparse
 import imghdr
+
+
+__author__ = 'Teriks'
+__copyright__ = 'Copyright (c) 2016 Teriks'
+__license__ = 'Three Clause BSD'
+__version__ = '0.2.1.1'
+
 
 C_HEADERS = """
 #include <signal.h>
