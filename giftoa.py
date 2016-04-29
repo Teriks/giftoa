@@ -277,7 +277,10 @@ def write_jp2a_cvar_into_file(environment, file, var_name, image_filename, jp2a_
     with subprocess.Popen(jp2a, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=environment) as p:
         data = p.communicate()
 
-        for line in data[1].decode().split('\n'):
+        data_stdout = data[0].decode().split('\n')
+        data_stderr = data[1].decode().split('\n')
+
+        for line in data_stderr:
             if line != '':
                 print(line, file=sys.stderr)
                 success = False
@@ -285,7 +288,7 @@ def write_jp2a_cvar_into_file(environment, file, var_name, image_filename, jp2a_
         if not success:
             return False
 
-        for line in data[0].decode().split('\n'):
+        for line in data_stdout:
             if line != '':
                 str_content = line.rstrip().replace('\\','\\\\')
                 if first_line:
