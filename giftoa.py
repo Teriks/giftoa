@@ -264,9 +264,10 @@ parser.add_argument('-v', '--version', action='version',
 
 parser.add_argument('-i', '--input',
                     help='A GIF file, GIF URL, or a directory full of jp2a compatible image frames (jpegs).  '
-                         'If you provide a directory, the jpeg images are sorted by name in natural order, '
-                         'you should include a frame number in the file name.  Specifying the output file '
-                         'with --output is required when a directory or URL is passed to --input.',
+                         'If you provide a directory the jpeg images are sorted by name in natural order, '
+                         'you should include a frame number at the beginning or end of the file name accordingly '
+                         'to keep the frames sorted correctly.  Specifying the output file name with --output is '
+                         'required when a directory or URL is passed to --input.',
 
                     dest='input_path', default=None,
                     type=lambda file_or_dir: is_valid_input(parser, file_or_dir))
