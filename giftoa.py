@@ -23,12 +23,17 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import sys
+import os
+import atexit
 import os.path
 import tempfile
 import subprocess
 import re
 import argparse
 import imghdr
+import urllib.request
+import urllib.parse
+import urllib.error
 
 
 __author__ = 'Teriks'
@@ -134,15 +139,61 @@ int main(int argc, char *argv[])
 """
 
 
-def is_valid_input(parser, file_or_dir):
-    if os.path.isfile(file_or_dir):
-        if imghdr.what(file_or_dir) != 'gif':
-            parser.error('"{path}" is not a GIF file.'.format(path=file_or_dir))
-        return file_or_dir
-    elif os.path.isdir(file_or_dir):
-        return file_or_dir
+def is_url(path):
+    return urllib.parse.urlparse(path).scheme != ""
+
+
+# This class allows a named temp file to be closed after writing without instantly deleting it, 
+# which is something NamedTemporaryFile will do by default.  This class deletes the temporary file
+# when the program exits however, which is something NamedTemporaryFile does not do when its 'delete'
+# parameter is set to False.
+
+class GCNamedTempFile:
+    def __init__(self):
+        self.file = tempfile.NamedTemporaryFile(mode='w+b', delete=False)
+        atexit.register(self.on_exit)
+    def on_exit(self):
+        os.unlink(self.file.name)
+
+# The temporary file created by a gif download is deleted when the program exits.
+# The object needs to be global so it does not get eaten by the garbage collector.
+
+GC_download_gif_temp_file = None
+
+
+# Download a gif to a temporary file and return the full path to it on disk.
+
+def download_gif(parser, path):
+    global GC_download_gif_temp_file
+
+    GC_download_gif_temp_file = GCNamedTempFile()
+
+    try:
+        req = urllib.request.Request(path, headers={'User-Agent':'Mozilla/5.0'})
+        data = urllib.request.urlopen(req)
+    except urllib.error.URLError as e:
+        parser.error('Failed downloading "{path}", message: "{reason}"'.format(path=path, reason=e.reason))
+
+    GC_download_gif_temp_file.file.write(data.read())
+    GC_download_gif_temp_file.file.close()
+
+    return GC_download_gif_temp_file.file.name
+
+
+def is_valid_input(parser, path):
+    if os.path.isfile(path):
+        if imghdr.what(path) != 'gif':
+            parser.error('"{path}" is not a GIF file.'.format(path=path))
+        return path
+    elif is_url(path):
+        path = download_gif(parser, path)
+        if imghdr.what(path) != 'gif':
+            parser.error('"{path}" is not a GIF file.'.format(path=path))
+        return path
+    elif os.path.isdir(path):
+        return path
     else:
-        parser.error('The path "{path}" is not a file or directory.'.format(path=file_or_dir))
+        parser.error('The path "{path}" is not a file, url or directory.'.format(path=path))
 
 
 def is_valid_frames_per_second(parser, sleep):
