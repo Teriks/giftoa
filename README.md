@@ -31,6 +31,12 @@ On debian based distributions:
 
 **or**
 
+`./giftoa.py -i http://gifwebsite.com/somegif.gif -o output_exe [jp2a options...]`  
+
+-o/--output must be specified when using a URL.
+
+**or**
+
 You can specify a directory containing JPEG files, the images in the directory
 will be used as frames for the animation.
 

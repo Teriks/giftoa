@@ -39,7 +39,7 @@ import urllib.error
 __author__ = 'Teriks'
 __copyright__ = 'Copyright (c) 2016 Teriks'
 __license__ = 'Three Clause BSD'
-__version__ = '0.3.0.0'
+__version__ = '0.3.1.0'
 
 
 C_HEADERS = """
