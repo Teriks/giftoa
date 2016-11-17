@@ -39,7 +39,7 @@ import urllib.error
 __author__ = 'Teriks'
 __copyright__ = 'Copyright (c) 2016 Teriks'
 __license__ = 'Three Clause BSD'
-__version__ = '0.3.1.0'
+__version__ = '0.3.0.0'
 
 
 C_HEADERS = """
@@ -411,6 +411,9 @@ def main():
 
     if not input_path and not args.stdin_frames:
         parser.error('-i/--input must be specified when not using --stdin-frames.')
+
+    if GC_download_gif_temp_file and not args.out_file:
+        parser.error('-o/--output must be specified when -i/--input is a URL.')
 
     out_file = args.out_file
     compiler = args.compiler
