@@ -66,6 +66,39 @@ The above command emulates how passing a directory to `-i` behaves for the most 
 giftoa will not accept non JPEG file paths from STDIN, it will produce an error when a non JPEG is detected.
 
 
+
+## Using with rightgif companion script
+
+rightgif.py is a simple client for [rightgif](https://rightgif.com)
+
+It returns a URL to a GIF that is related to whatever sentence/statement you pass as an argument.
+
+
+For example:
+
+`./rightgif.py really fat cats`
+
+
+You dont need to quote your query but you can:
+
+
+`./rightgif.py "horrifically obese cats"`
+
+
+Pairing it with giftoa:
+
+
+`./giftoa.py -i $(./rightgif.py kitties) -o kitties_exe`
+
+
+**or**
+
+`./giftoa.py -i $(./rightgif.py kitties) -o kitties_exe && ./kitties_exe`
+
+
+Note: You must specify an output file when passing a URL to giftoa.
+
+
 ## Frame Delay / FPS
 
 
