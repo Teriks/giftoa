@@ -39,7 +39,7 @@ import urllib.error
 __author__ = 'Teriks'
 __copyright__ = 'Copyright (c) 2016 Teriks'
 __license__ = 'Three Clause BSD'
-__version__ = '0.3.1.0'
+__version__ = '0.3.1.1'
 
 
 C_HEADERS = """
@@ -265,8 +265,8 @@ parser.add_argument('-v', '--version', action='version',
 parser.add_argument('-i', '--input',
                     help='A GIF file, GIF URL, or a directory full of jp2a compatible image frames (jpegs).  '
                          'If you provide a directory, the jpeg images are sorted by name in natural order, '
-                         'you should include a frame number.  Specifying the output file with --output is '
-                         'required when a directory is passed to --input.',
+                         'you should include a frame number in the file name.  Specifying the output file '
+                         'with --output is required when a directory or URL is passed to --input.',
 
                     dest='input_path', default=None,
                     type=lambda file_or_dir: is_valid_input(parser, file_or_dir))
