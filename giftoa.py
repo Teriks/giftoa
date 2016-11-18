@@ -39,7 +39,7 @@ import urllib.error
 __author__ = 'Teriks'
 __copyright__ = 'Copyright (c) 2016 Teriks'
 __license__ = 'Three Clause BSD'
-__version__ = '0.3.1.1'
+__version__ = '0.3.1.2'
 
 
 C_HEADERS = """
@@ -152,21 +152,22 @@ class GCNamedTempFile:
     def __init__(self):
         self.file = tempfile.NamedTemporaryFile(mode='w+b', delete=False)
         atexit.register(self.on_exit)
+
     def on_exit(self):
         os.unlink(self.file.name)
 
 # The temporary file created by a gif download is deleted when the program exits.
 # The object needs to be global so it does not get eaten by the garbage collector.
 
-GC_download_gif_temp_file = None
+downloaded_gif_temp_file = None
 
 
 # Download a gif to a temporary file and return the full path to it on disk.
 
 def download_gif(parser, path):
-    global GC_download_gif_temp_file
+    global downloaded_gif_temp_file
 
-    GC_download_gif_temp_file = GCNamedTempFile()
+    downloaded_gif_temp_file = GCNamedTempFile()
 
     try:
         req = urllib.request.Request(path, headers={'User-Agent':'Mozilla/5.0'})
@@ -174,10 +175,10 @@ def download_gif(parser, path):
     except urllib.error.URLError as e:
         parser.error('Failed downloading "{path}", message: "{reason}"'.format(path=path, reason=e.reason))
 
-    GC_download_gif_temp_file.file.write(data.read())
-    GC_download_gif_temp_file.file.close()
+    downloaded_gif_temp_file.file.write(data.read())
+    downloaded_gif_temp_file.file.close()
 
-    return GC_download_gif_temp_file.file.name
+    return downloaded_gif_temp_file.file.name
 
 
 def is_valid_input(parser, path):
@@ -247,7 +248,7 @@ def is_valid_framesleep_nanoseconds(parser, sleep):
     return i_value
 
 
-parser = argparse.ArgumentParser(
+arg_parser = argparse.ArgumentParser(
     prog='giftoa',
 
     description=
@@ -259,60 +260,60 @@ parser = argparse.ArgumentParser(
     'Also note that this program requires: gcc, libncurses-dev, jp2a and ImageMagick.'
 )
 
-parser.add_argument('-v', '--version', action='version', 
-                    version='%(prog)s {version}'.format(version=__version__))
+arg_parser.add_argument('-v', '--version', action='version',
+                        version='%(prog)s {version}'.format(version=__version__))
 
-parser.add_argument('-i', '--input',
-                    help='A GIF file, GIF URL, or a directory full of jp2a compatible image frames (jpegs).  '
-                         'If you provide a directory the jpeg images are sorted by name in natural order, '
-                         'you should include a frame number at the beginning or end of the file name accordingly '
-                         'to keep the frames sorted correctly.  Specifying the output file name with --output is '
-                         'required when a directory or URL is passed to --input.',
+arg_parser.add_argument('-i', '--input',
+                        help='A GIF file, GIF URL, or a directory full of jp2a compatible image frames (jpegs).  '
+                             'If you provide a directory the jpeg images are sorted by name in natural order, '
+                             'you should include a frame number at the beginning or end of the file name accordingly '
+                             'to keep the frames sorted correctly.  Specifying the output file name with --output is '
+                             'required when a directory or URL is passed to --input.',
 
-                    dest='input_path', default=None,
-                    type=lambda file_or_dir: is_valid_input(parser, file_or_dir))
+                        dest='input_path', default=None,
+                        type=lambda file_or_dir: is_valid_input(arg_parser, file_or_dir))
 
-parser.add_argument('--stdin-frames', dest='stdin_frames', action='store_true',
-                    help='Accept input frames from stdin as '
-                         'a newline separated list of jpeg file paths.')
+arg_parser.add_argument('--stdin-frames', dest='stdin_frames', action='store_true',
+                        help='Accept input frames from stdin as '
+                             'a newline separated list of jpeg file paths.')
 
-parser.add_argument('-o', '--output',
+arg_parser.add_argument('-o', '--output',
 
-                    help='The name of the output executable.  '
-                         'If a GIF file is passed and no output name is supplied, '
-                         'the name of the input file without its extension is used.  '
-                         'When passing a directory to -i / --input, you must specify an output file name.',
-                    dest='out_file')
+                        help='The name of the output executable.  '
+                             'If a GIF file is passed and no output name is supplied, '
+                             'the name of the input file without its extension is used.  '
+                             'When passing a directory to -i / --input, you must specify an output file name.',
+                        dest='out_file')
 
-parser.add_argument('-fps', '--frames-per-second', default=None, dest='frames_per_second',
+arg_parser.add_argument('-fps', '--frames-per-second', default=None, dest='frames_per_second',
 
-                    type=lambda sleep: is_valid_frames_per_second(parser, sleep),
+                        type=lambda sleep: is_valid_frames_per_second(arg_parser, sleep),
 
-                    help='The frames per second to attempt to play the animation at (defaults to 10).  '
-                         'The minimum value is 1 and the maximum value is 1000000000, FPS must be a whole number.  '
-                         'This cannot be used when either -fss or -fsn is specified.'
-                    )
+                        help='The frames per second to attempt to play the animation at (defaults to 10).  '
+                             'The minimum value is 1 and the maximum value is 1000000000, FPS must be a whole number.  '
+                             'This cannot be used when either -fss or -fsn is specified.'
+                        )
 
-parser.add_argument('-fss', '--framesleep-seconds', default=None, dest='framesleep_seconds',
+arg_parser.add_argument('-fss', '--framesleep-seconds', default=None, dest='framesleep_seconds',
 
-                    type=lambda sleep: is_valid_framesleep_seconds(parser, sleep),
+                        type=lambda sleep: is_valid_framesleep_seconds(arg_parser, sleep),
 
-                    help='The number of seconds to sleep before moving to the next frame of the GIF.  '
-                         'This is in addition to the number of nanoseconds specified by "-fsn".  '
-                         'The value cannot be greater than 2147483647.'
-                    )
+                        help='The number of seconds to sleep before moving to the next frame of the GIF.  '
+                             'This is in addition to the number of nanoseconds specified by "-fsn".  '
+                             'The value cannot be greater than 2147483647.'
+                        )
 
-parser.add_argument('-fsn', '--framesleep-nanoseconds', default=None, dest='framesleep_nanoseconds',
+arg_parser.add_argument('-fsn', '--framesleep-nanoseconds', default=None, dest='framesleep_nanoseconds',
 
-                    type=lambda sleep: is_valid_framesleep_nanoseconds(parser, sleep),
+                        type=lambda sleep: is_valid_framesleep_nanoseconds(arg_parser, sleep),
 
-                    help='The number of nanoseconds to sleep before moving to the next frame of the GIF. '
-                         'This is in addition to the number of seconds specified by "-fss."  '
-                         'The value cannot be greater than 999999999.'
-                    )
+                        help='The number of nanoseconds to sleep before moving to the next frame of the GIF. '
+                             'This is in addition to the number of seconds specified by "-fss."  '
+                             'The value cannot be greater than 999999999.'
+                        )
 
-parser.add_argument('-cc', '--compiler', type=str, default='cc',
-                    help='The command used to invoke the C compiler, default is "cc".')
+arg_parser.add_argument('-cc', '--compiler', type=str, default='cc',
+                        help='The command used to invoke the C compiler, default is "cc".')
 
 
 def natural_sort_key(s, _nsre=re.compile('([0-9]+)')):
@@ -389,32 +390,32 @@ def yield_paths_from_stdin():
     for path in sys.stdin:
         path = path.rstrip()
         if not os.path.isfile(path):
-            parser.error('File "{file}" from stdin does not exist.'.format(file=path))
+            arg_parser.error('File "{file}" from stdin does not exist.'.format(file=path))
         if imghdr.what(path) != 'jpeg':
-            parser.error('File "{file}" from stdin is not a JPEG.'.format(file=path))
+            arg_parser.error('File "{file}" from stdin is not a JPEG.'.format(file=path))
         yield path
 
 
 def main():
-    args = parser.parse_known_args()
+    args = arg_parser.parse_known_args()
     jp2a_args = args[1]
     args = args[0]
 
     if args.frames_per_second and (args.framesleep_seconds or args.framesleep_nanoseconds):
-        parser.error('-fss (--framesleep-seconds) and -fsn (--framesleep-nanoseconds) '
-                     'cannot be used with -fps (--frames-per-second).')
+        arg_parser.error('-fss (--framesleep-seconds) and -fsn (--framesleep-nanoseconds) '
+                         'cannot be used with -fps (--frames-per-second).')
         # parser.error calls exit(2) immediately
 
     input_path = args.input_path
 
     if args.stdin_frames and input_path:
-        parser.error('-i/--input and --stdin-frames cannot be used together.')
+        arg_parser.error('-i/--input and --stdin-frames cannot be used together.')
 
     if not input_path and not args.stdin_frames:
-        parser.error('-i/--input must be specified when not using --stdin-frames.')
+        arg_parser.error('-i/--input must be specified when not using --stdin-frames.')
 
-    if GC_download_gif_temp_file and not args.out_file:
-        parser.error('-o/--output must be specified when -i/--input is a URL.')
+    if downloaded_gif_temp_file and not args.out_file:
+        arg_parser.error('-o/--output must be specified when -i/--input is a URL.')
 
     out_file = args.out_file
     compiler = args.compiler
@@ -444,8 +445,8 @@ def main():
             image_paths = (os.path.join(temp_dir, path) for path in image_paths)
         else:
             if not out_file:
-                parser.error('No output file specified, an output file must be specified '
-                             'when passing a directory to -i/--input.')
+                arg_parser.error('No output file specified, an output file must be specified '
+                                 'when passing a directory to -i/--input.')
                 # parser.error calls exit(2) immediately
 
             image_paths = (file for file in os.listdir(input_path) if
@@ -454,7 +455,7 @@ def main():
             image_paths = sorted(image_paths, key=natural_sort_key)
 
             if len(image_paths) == 0:
-                parser.error('No jp2a compatible images found in directory "{dir}".'.format(dir=input_path))
+                arg_parser.error('No jp2a compatible images found in directory "{dir}".'.format(dir=input_path))
                 # parser.error calls exit(2) immediately
 
             image_paths = (os.path.join(input_path, path) for path in image_paths)
