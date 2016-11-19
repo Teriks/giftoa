@@ -1,0 +1,8 @@
+Package: giftoa
+Version: {VERSION}
+Section: miscellaneous
+Priority: optional
+Architecture: all
+Depends: python3, gcc, python3, imagemagick, jp2a, libncurses-dev
+Maintainer: Teriks <Teriks@users.noreply.github.com>
+Description: Compiles a native binary that plays a GIF or series of images in ASCII in your console using ncurses.

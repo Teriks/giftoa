@@ -1,0 +1,8 @@
+Package: rightgif
+Version: {VERSION}
+Section: Miscellaneous
+Priority: optional
+Architecture: all
+Depends: python3
+Maintainer: Teriks <Teriks@users.noreply.github.com>
+Description: A simple client for https://www.rightgif.com that returns a gif URL when given a text query.
