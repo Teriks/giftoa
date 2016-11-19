@@ -24,7 +24,7 @@
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
+import argparse
 import urllib.request
 import urllib.parse
 import urllib.error
@@ -32,12 +32,38 @@ import json
 import sys
 
 
-if len(sys.argv) < 2:
-    print("No query text provided.")
-    exit(1)
+__author__ = 'Teriks'
+__copyright__ = 'Copyright (c) 2016 Teriks'
+__license__ = 'Three Clause BSD'
+__version__ = '0.1.0.0'
 
 
-query_text = " ".join(sys.argv[1:])
+
+arg_parser = argparse.ArgumentParser(
+    prog='rightgif',
+
+    description=
+    'A simple https://rightgif.com client, returns a URL to the "right gif" when given query text.',
+
+    epilog=
+    'The rightgif query text is the only accepted argument, it may be given with or without quotes.'
+)
+
+
+arg_parser.add_argument('-v', '--version', action='version',
+                        version='%(prog)s {version}'.format(version=__version__))
+
+
+arg_parser.add_argument('querytext', type=str, nargs='+',
+                         help='The query text to use to find the right GIF, quotes are '
+                              'not required when using spaces.')
+
+
+args = arg_parser.parse_args()
+
+
+query_text = " ".join(args.querytext)
+
 
 post_data = urllib.parse.urlencode({'text': query_text}).encode('utf-8')
 
