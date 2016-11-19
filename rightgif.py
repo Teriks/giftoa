@@ -75,10 +75,10 @@ try:
     response=urllib.request.urlopen(request).read().decode('utf-8')
     json_response=json.loads(response)
 except urllib.error.URLError as e:
-    print('Request Error: {reason}'.format(reason=e.reason))
+    print('Request Error: {reason}'.format(reason=e.reason), file=sys.stderr)
     exit(1)
 except ValueError as e:
-    print('Error decoding JSON response: "{response}", Reason: "{reason}"'.format(response=response, reason=reason))
+    print('Error decoding JSON response: "{response}", Reason: "{reason}"'.format(response=response, reason=reason), file=sys.stderr)
     exit(1) 
 
 print(json_response["url"])
