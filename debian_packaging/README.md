@@ -10,7 +10,6 @@ sudo dpkg -i (package file here)
 
 sudo apt-get install -f
 
-
 ```
 
 
