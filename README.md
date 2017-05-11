@@ -32,10 +32,14 @@ scripts into your environment using the pip package manager like this:
 ## Debian Packaging
 
 
-You can also build a **.deb** file which will install the required native dependencies
+You can also build two **.deb** files for the rightgif and giftoa command seperately
 by running the 'package.py' script in the **debian_packaging** directory.
 
-Once the **.deb** package is built you can install it with `sudo dpkg -i deb_package_here.deb`
+The giftoa **.deb** file will install the dependencies listed above.
+
+Once the **.deb** packages are built you can install each selectively with:
+
+`sudo dpkg -i deb_package_here.deb`
 
 
 ## Basic Usage
