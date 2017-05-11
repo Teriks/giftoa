@@ -61,26 +61,31 @@ arg_parser.add_argument('querytext', type=str, nargs='+',
                               'not required when using spaces.')
 
 
-args = arg_parser.parse_args()
+def main():
+    args = arg_parser.parse_args()
 
 
-query_text = " ".join(args.querytext)
+    query_text = " ".join(args.querytext)
 
 
-post_data = urllib.parse.urlencode({'text': query_text}).encode('utf-8')
+    post_data = urllib.parse.urlencode({'text': query_text}).encode('utf-8')
 
-request = urllib.request.Request('https://rightgif.com/search/web', 
-                               data=urllib.parse.urlencode({'text': query_text}).encode('utf-8'), 
-                               headers={'User-Agent': 'Mozilla/5.0'})
+    request = urllib.request.Request('https://rightgif.com/search/web', 
+                                   data=urllib.parse.urlencode({'text': query_text}).encode('utf-8'), 
+                                   headers={'User-Agent': 'Mozilla/5.0'})
 
-try:
-    response=urllib.request.urlopen(request).read().decode('utf-8')
-    json_response=json.loads(response)
-except urllib.error.URLError as e:
-    print('Request Error: {reason}'.format(reason=e.reason), file=sys.stderr)
-    exit(1)
-except ValueError as e:
-    print('Error decoding JSON response: "{response}", Reason: "{reason}"'.format(response=response, reason=reason), file=sys.stderr)
-    exit(1) 
+    try:
+        response=urllib.request.urlopen(request).read().decode('utf-8')
+        json_response=json.loads(response)
+    except urllib.error.URLError as e:
+        print('Request Error: {reason}'.format(reason=e.reason), file=sys.stderr)
+        exit(1)
+    except ValueError as e:
+        print('Error decoding JSON response: "{response}", Reason: "{reason}"'.format(response=response, reason=reason), file=sys.stderr)
+        exit(1) 
 
-print(json_response["url"])
+    print(json_response["url"])
+
+
+if __name__ == '__main__':
+    sys.exit(main())
