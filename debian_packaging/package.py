@@ -35,9 +35,9 @@ script_path = os.path.dirname(os.path.realpath(__file__))
 src_path = os.path.dirname(script_path)
 
 
-rightgif_path = os.path.join(src_path, 'rightgif.py')
+rightgif_path = os.path.join(src_path, 'giftoa/rightgif.py')
 
-giftoa_path = os.path.join(src_path, 'giftoa.py')
+giftoa_path = os.path.join(src_path, 'giftoa/giftoa.py')
 
 
 simple_version_parse = re.compile(r"^(\d+)\.(\d+)\.(\d+)(?:\.(\d+))?$")
