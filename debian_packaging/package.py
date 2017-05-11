@@ -26,6 +26,7 @@
 
 
 import os
+import sys
 import re
 import subprocess
 import shutil
@@ -35,20 +36,20 @@ script_path = os.path.dirname(os.path.realpath(__file__))
 src_path = os.path.dirname(script_path)
 
 
-rightgif_path = os.path.join(src_path, 'giftoa/rightgif.py')
+rightgif_path = os.path.join(src_path, 'giftoa', 'rightgif.py')
 
-giftoa_path = os.path.join(src_path, 'giftoa/giftoa.py')
+giftoa_path = os.path.join(src_path, 'giftoa', 'giftoa.py')
 
 
 simple_version_parse = re.compile(r"^(\d+)\.(\d+)\.(\d+)(?:\.(\d+))?$")
 
 
 rightgif_version = simple_version_parse.match(
-                   subprocess.check_output([rightgif_path, '-v']).decode('utf-8').split()[1]
+                   subprocess.check_output([sys.executable, rightgif_path, '-v']).decode('utf-8').split()[1]
                    )
 
 giftoa_version = simple_version_parse.match(
-                 subprocess.check_output([giftoa_path, '-v']).decode('utf-8').split()[1]
+                 subprocess.check_output([sys.executable, giftoa_path, '-v']).decode('utf-8').split()[1]
                  )
 
 
