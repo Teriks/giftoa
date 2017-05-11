@@ -23,7 +23,7 @@ On debian based distributions:
 
 ## Pip Install
 
-After you have installed the above dependencies, you can install the giftoa and rightgif
+After you have installed the above dependencies, you can install the **giftoa** and **rightgif**
 scripts into your environment using the pip package manager like this:
 
 `sudo pip3 install git+git://github.com/Teriks/giftoa@1.0.0.0`
@@ -32,7 +32,7 @@ scripts into your environment using the pip package manager like this:
 ## Debian Packaging
 
 
-You can also build two **.deb** files for the rightgif and giftoa command seperately
+You can also build two **.deb** files for the **rightgif** and **giftoa** commands seperately
 by running the 'package.py' script in the **debian_packaging** directory.
 
 The giftoa **.deb** file will install the dependencies listed above.
