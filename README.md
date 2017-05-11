@@ -33,7 +33,7 @@ scripts into your environment using the pip package manager like this:
 
 
 You can also build a **.deb** file which will install the required native dependencies
-by runing the 'package.py' script in the **debian_packaging** directory.
+by running the 'package.py' script in the **debian_packaging** directory.
 
 Once the **.deb** package is built you can install it with `sudo dpkg -i deb_package_here.deb`
 
