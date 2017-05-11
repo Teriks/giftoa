@@ -78,9 +78,14 @@ os.makedirs(os.path.join(giftoa_work_dir,'usr','bin'))
 os.makedirs(os.path.join(rightgif_work_dir,'DEBIAN'))
 os.makedirs(os.path.join(rightgif_work_dir,'usr','bin'))
 
+giftoa_bin_path = os.path.join(giftoa_work_dir,'usr','bin','giftoa')
+rightgif_bin_path = os.path.join(giftoa_work_dir,'usr','bin','rightgif')
 
-shutil.copy(giftoa_path, os.path.join(giftoa_work_dir,'usr','bin','giftoa'))
-shutil.copy(rightgif_path, os.path.join(rightgif_work_dir,'usr','bin','rightgif'))
+shutil.copy(giftoa_path, giftoa_bin_path)
+os.chmod(giftoa_bin_path, mode=0o755)
+
+shutil.copy(rightgif_path, rightgif_bin_path)
+os.chmod(rightgif_bin_path, mode=0o755)
 
 
 with open(os.path.join(script_path,'templates','giftoa_control'), 'r') as template:
