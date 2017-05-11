@@ -398,8 +398,27 @@ def yield_paths_from_stdin():
 
 def main():
     args = arg_parser.parse_known_args()
+    
+    try:
+        _ = subprocess.check_output(['which', 'jp2a'])
+    except:
+        print('Cannot find the jp2a command, please install jp2a.  Info: https://csl.name/jp2a/', file=sys.stderr)
+        exit(1)
+    
+    try:
+        _ = subprocess.check_output(['which', 'convert'])
+    except:
+        print('Cannot find ImageMagick\'s "convert" command, please install ImageMagick.', file=sys.stderr)
+        exit(1)
+   
     jp2a_args = args[1]
     args = args[0]
+    
+    try:
+        _ = subprocess.check_output(['which', args.compiler])
+    except:
+        print('Unable to find C compiler "{}", please specify or install one.'.format(args.compiler), file=sys.stderr)
+        exit(1)
 
     if args.frames_per_second and (args.framesleep_seconds or args.framesleep_nanoseconds):
         arg_parser.error('-fss (--framesleep-seconds) and -fsn (--framesleep-nanoseconds) '
