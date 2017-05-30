@@ -39,7 +39,7 @@ import urllib.error
 __author__ = 'Teriks'
 __copyright__ = 'Copyright (c) 2016 Teriks'
 __license__ = 'Three Clause BSD'
-__version__ = '1.0.1.0'
+__version__ = '1.0.2.0'
 
 
 C_HEADERS = """
@@ -507,7 +507,7 @@ def main():
             source_file.write(get_framedelay_init_macro_define('GIFTOA_FRAMEDELAY_INIT', args))
             source_file.write(C_PROGRAM)
 
-        subprocess.call([compiler, source_file_path, '-o', out_file, '-lcurses'])
+        subprocess.call([compiler, source_file_path, '-o', out_file, '-lcurses', '-lrt'])
 
         return 0
 
