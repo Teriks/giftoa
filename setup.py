@@ -16,6 +16,7 @@ with open('README.md', 'r', encoding='utf-8') as f:
 
 setup(name='giftoa',
       author='Teriks',
+      author_email='Teriks@users.noreply.github.com',
       url='https://github.com/Teriks/giftoa',
       version=version,
       packages=find_packages(exclude=("debian_packaging",)),
@@ -32,7 +33,7 @@ setup(name='giftoa',
       },
       classifiers=[
           'Development Status :: 5 - Production/Stable',
-          'License :: OSI Approved :: BSD 3-Clause License',
+          'License :: OSI Approved :: BSD License',
           'Intended Audience :: End Users/Desktop',
           'Natural Language :: English',
           'Operating System :: OS Independent',
