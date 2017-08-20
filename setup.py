@@ -12,7 +12,7 @@ if not version:
 
 
 readme = ''
-with open('README.md', 'r', encoding='utf-8') as f:
+with open('README.rst', 'r', encoding='utf-8') as f:
     readme = f.read()
 
 
