@@ -34,12 +34,13 @@ import imghdr
 import urllib.request
 import urllib.parse
 import urllib.error
+import shutil
 
 
 __author__ = 'Teriks'
 __copyright__ = 'Copyright (c) 2016 Teriks'
 __license__ = 'Three Clause BSD'
-__version__ = '1.0.2.1'
+__version__ = '1.0.3.0'
 
 
 C_HEADERS = """
@@ -92,7 +93,6 @@ int main(int argc, char *argv[])
         
     const char * frames[] = GIFTOA_FRAMES_INIT;
     int framecnt = sizeof(frames) / sizeof(const char*);
-
 
     curs_set(0);
 
@@ -149,8 +149,8 @@ def is_url(path):
 # parameter is set to False.
 
 class GCNamedTempFile:
-    def __init__(self):
-        self.file = tempfile.NamedTemporaryFile(mode='w+b', delete=False)
+    def __init__(self, mode='w+b'):
+        self.file = tempfile.NamedTemporaryFile(mode=mode, delete=False)
         atexit.register(self.on_exit)
 
     def on_exit(self):
@@ -324,7 +324,7 @@ def natural_sort_key(s, _nsre=re.compile('([0-9]+)')):
 
 def write_jp2a_cvar_into_file(environment, file, var_name, image_filename, jp2a_args):
 
-    jp2a = ['jp2a', image_filename]
+    jp2a = ['img2a', image_filename]
     jp2a.extend(jp2a_args)
 
     success = True
@@ -507,7 +507,37 @@ def main():
             source_file.write(get_framedelay_init_macro_define('GIFTOA_FRAMEDELAY_INIT', args))
             source_file.write(C_PROGRAM)
 
-        subprocess.call([compiler, source_file_path, '-o', out_file, '-lcurses', '-lrt'])
+        compiler_output = GCNamedTempFile(mode='w+')
+
+        compiler_rt_code = 0
+
+        compiler_cmd = [compiler, source_file_path, '-o', out_file]
+
+        try:
+            # try with librealtime
+
+            subprocess.check_call(
+                compiler_cmd + ['-lcurses', '-lrt'],
+                stderr=subprocess.STDOUT,
+                stdout=compiler_output.file
+                )
+
+        except subprocess.CalledProcessError:
+            # try without librealtime
+
+            compiler_output.file.seek(0)
+
+            compiler_rt_code = subprocess.call(
+                compiler_cmd + ['-lcurses'],
+                stderr=subprocess.STDOUT,
+                stdout=compiler_output.file
+            )
+
+        if compiler_rt_code:
+            compiler_output.file.seek(0)
+            shutil.copyfileobj(compiler_output.file, sys.stderr)
+            sys.stderr.flush()
+            return compiler_rt_code
 
         return 0
 
