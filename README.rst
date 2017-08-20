@@ -25,6 +25,10 @@ On debian based distributions:
 
 ``sudo apt-get install gcc python3 imagemagick jp2a libncurses-dev``
 
+This may be or may not be required to install pip3:
+
+``sudo apt-get install python3-pip``
+
 Pip Install
 -----------
 
