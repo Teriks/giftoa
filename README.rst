@@ -142,7 +142,7 @@ example:
 
 ``giftoa -i gif_file.gif -fps 25 -o output_exe [jp2a options...]``
 
-===
+----------
 
 ``-fsn`` or ``--framesleep-nanoseconds`` can be used to adjust the delay
 in nanoseconds between GIF frames.
@@ -156,7 +156,7 @@ example:
 
 ``giftoa -i gif_file.gif -fsn 100000000 -o output_exe [jp2a options...]``
 
-===
+----------
 
 ``-fss`` or ``--framesleep-seconds`` can be used to adjust the delay in
 seconds between GIF frames. This is in addition to whatever amount of
