@@ -324,7 +324,7 @@ def natural_sort_key(s, _nsre=re.compile('([0-9]+)')):
 
 def write_jp2a_cvar_into_file(environment, file, var_name, image_filename, jp2a_args):
 
-    jp2a = ['img2a', image_filename]
+    jp2a = ['jp2a', image_filename]
     jp2a.extend(jp2a_args)
 
     success = True
