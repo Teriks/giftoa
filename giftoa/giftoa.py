@@ -55,9 +55,7 @@ C_HEADERS = """
 
 GETTIME_DEFAULT_IMPL = """
 
-void _clock_gettime_monotonic(struct timespec* t){
-	clock_gettime(CLOCK_MONOTONIC, &t);
-}
+#define _clock_gettime_monotonic(t) clock_gettime(CLOCK_MONOTONIC, t)
 
 """
 
@@ -72,7 +70,7 @@ GETTIME_MACOS_IMPL = """
 static double _orwl_timebase = 0.0;
 static uint64_t _orwl_timestart = 0;
 
-void _clock_gettime_monotonic(struct timespec* t) {
+int _clock_gettime_monotonic(struct timespec* t) {
 
   if (!_orwl_timestart) {
     mach_timebase_info_data_t tb = { 0 };
@@ -86,6 +84,8 @@ void _clock_gettime_monotonic(struct timespec* t) {
 
   t->tv_sec = diff * ORWL_NANO;
   t->tv_nsec = diff - (t->tv_sec * ORWL_GIGA);
+  
+  return 0;
 }
 
 """
