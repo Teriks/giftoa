@@ -40,7 +40,7 @@ import shutil
 __author__ = 'Teriks'
 __copyright__ = 'Copyright (c) 2016 Teriks'
 __license__ = 'Three Clause BSD'
-__version__ = '1.0.3.1'
+__version__ = '1.0.4.0'
 
 
 C_HEADERS = """
@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
         clear();
         mvaddstr(0, 0, frames[frame]);
         refresh();
-
+        
         frame = frame == framecnt-1 ? 0 : frame+1;
 
         clock_gettime(CLOCK_MONOTONIC, &endTime);
@@ -516,6 +516,9 @@ def main():
         try:
             # try with librealtime
 
+            print("Compiling with -lrt...",
+                  file=compiler_output.file, flush=True)
+
             subprocess.check_call(
                 compiler_cmd + ['-lcurses', '-lrt'],
                 stderr=subprocess.STDOUT,
@@ -525,7 +528,8 @@ def main():
         except subprocess.CalledProcessError:
             # try without librealtime
 
-            compiler_output.file.seek(0)
+            print("Compiling without -lrt...",
+                  file=compiler_output.file, flush=True)
 
             compiler_rt_code = subprocess.call(
                 compiler_cmd + ['-lcurses'],
