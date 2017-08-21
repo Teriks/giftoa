@@ -35,12 +35,13 @@ import urllib.request
 import urllib.parse
 import urllib.error
 import shutil
+import platform
 
 
 __author__ = 'Teriks'
 __copyright__ = 'Copyright (c) 2016 Teriks'
 __license__ = 'Three Clause BSD'
-__version__ = '1.0.4.0'
+__version__ = '1.0.5.0'
 
 
 C_HEADERS = """
@@ -51,7 +52,46 @@ C_HEADERS = """
 
 """
 
+
+GETTIME_DEFAULT_IMPL = """
+
+void _clock_gettime_monotonic(struct timespec* t){
+	clock_gettime(CLOCK_MONOTONIC, &t);
+}
+
+"""
+
+# For MacOS < 10.12
+GETTIME_MACOS_IMPL = """
+
+#include <mach/mach_time.h>
+
+#define ORWL_NANO (+1.0E-9)
+#define ORWL_GIGA UINT64_C(1000000000)
+
+static double _orwl_timebase = 0.0;
+static uint64_t _orwl_timestart = 0;
+
+void _clock_gettime_monotonic(struct timespec* t) {
+
+  if (!_orwl_timestart) {
+    mach_timebase_info_data_t tb = { 0 };
+    mach_timebase_info(&tb);
+    _orwl_timebase = tb.numer;
+    _orwl_timebase /= tb.denom;
+    _orwl_timestart = mach_absolute_time();
+  }
+
+  double diff = (mach_absolute_time() - _orwl_timestart) * _orwl_timebase;
+
+  t->tv_sec = diff * ORWL_NANO;
+  t->tv_nsec = diff - (t->tv_sec * ORWL_GIGA);
+}
+
+"""
+
 C_PROGRAM = """
+
 WINDOW * mainwin = 0;
 
 void cleanup()
@@ -106,7 +146,7 @@ int main(int argc, char *argv[])
 
     while(true) 
     {
-        clock_gettime(CLOCK_MONOTONIC, &startTime);
+        _clock_gettime_monotonic(&startTime);
 
         if(getch() == 27)
         {
@@ -119,7 +159,7 @@ int main(int argc, char *argv[])
         
         frame = frame == framecnt-1 ? 0 : frame+1;
 
-        clock_gettime(CLOCK_MONOTONIC, &endTime);
+        _clock_gettime_monotonic(&endTime);
 
         time_t tv_sec = frameDelay.tv_sec - (endTime.tv_sec - startTime.tv_sec);
         long tv_nsec = frameDelay.tv_nsec - (endTime.tv_nsec - startTime.tv_nsec);
@@ -321,6 +361,14 @@ def natural_sort_key(s, _nsre=re.compile('([0-9]+)')):
     return [int(text) if text.isdigit() else text.lower()
             for text in re.split(_nsre, s)]
 
+def write_clock_gettime_impl(file):
+	mac_ver = platform.mac_ver()[0].split('.')
+	
+	if len(mac_ver) == ['']:
+		file.write(GETTIME_DEFAULT_IMPL)
+	elif [int(x) for x in mac_ver[:2]] < [10, 12]:
+		# Need to emulate if MacOS < 10.12
+		file.write(GETTIME_MACOS_IMPL)
 
 def write_jp2a_cvar_into_file(environment, file, var_name, image_filename, jp2a_args):
 
@@ -503,6 +551,7 @@ def main():
                 if not success:
                     return 1
 
+            write_clock_gettime_impl(source_file)
             source_file.write('#define GIFTOA_FRAMES_INIT {' + ','.join(frame_cvar_names) + '}\n')
             source_file.write(get_framedelay_init_macro_define('GIFTOA_FRAMEDELAY_INIT', args))
             source_file.write(C_PROGRAM)
