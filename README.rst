@@ -38,6 +38,11 @@ package manager like this:
 
 ``sudo pip3 install giftoa``
 
+Or to upgrade:
+
+``sudo pip3 install giftoa --upgrade``
+
+
 Debian Packaging
 ----------------
 
