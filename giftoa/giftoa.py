@@ -37,12 +37,10 @@ import urllib.error
 import shutil
 import platform
 
-
 __author__ = 'Teriks'
 __copyright__ = 'Copyright (c) 2016 Teriks'
 __license__ = 'Three Clause BSD'
-__version__ = '1.0.5.0'
-
+__version__ = '1.0.6.0'
 
 C_HEADERS = """
 #include <signal.h>
@@ -51,7 +49,6 @@ C_HEADERS = """
 #include <time.h>
 
 """
-
 
 GETTIME_DEFAULT_IMPL = """
 
@@ -196,6 +193,7 @@ class GCNamedTempFile:
     def on_exit(self):
         os.unlink(self.file.name)
 
+
 # The temporary file created by a gif download is deleted when the program exits.
 # The object needs to be global so it does not get eaten by the garbage collector.
 
@@ -210,7 +208,7 @@ def download_gif(parser, path):
     downloaded_gif_temp_file = GCNamedTempFile()
 
     try:
-        req = urllib.request.Request(path, headers={'User-Agent':'Mozilla/5.0'})
+        req = urllib.request.Request(path, headers={'User-Agent': 'Mozilla/5.0'})
         data = urllib.request.urlopen(req)
     except urllib.error.URLError as e:
         parser.error('Failed downloading "{path}", message: "{reason}"'.format(path=path, reason=e.reason))
@@ -361,17 +359,18 @@ def natural_sort_key(s, _nsre=re.compile('([0-9]+)')):
     return [int(text) if text.isdigit() else text.lower()
             for text in re.split(_nsre, s)]
 
+
 def write_clock_gettime_impl(file):
-	mac_ver = platform.mac_ver()[0].split('.')
-	
-	if len(mac_ver) == ['']:
-		file.write(GETTIME_DEFAULT_IMPL)
-	elif [int(x) for x in mac_ver[:2]] < [10, 12]:
-		# Need to emulate if MacOS < 10.12
-		file.write(GETTIME_MACOS_IMPL)
+    mac_ver = platform.mac_ver()[0].split('.')
+
+    if mac_ver == ['']:
+        file.write(GETTIME_DEFAULT_IMPL)
+    elif [int(x) for x in mac_ver[:2]] < [10, 12]:
+        # Need to emulate if MacOS < 10.12
+        file.write(GETTIME_MACOS_IMPL)
+
 
 def write_jp2a_cvar_into_file(environment, file, var_name, image_filename, jp2a_args):
-
     jp2a = ['jp2a', image_filename]
     jp2a.extend(jp2a_args)
 
@@ -394,7 +393,7 @@ def write_jp2a_cvar_into_file(environment, file, var_name, image_filename, jp2a_
 
         for line in data_stdout:
             if line != '':
-                str_content = line.rstrip().replace('\\','\\\\')
+                str_content = line.rstrip().replace('\\', '\\\\')
                 if first_line:
                     file.write('const char* ' + var_name + '= "\\\n' + str_content + '\\n\\\n')
                     first_line = False
@@ -430,9 +429,9 @@ def get_framedelay_init_macro_define(macro_name, args):
     return '#define {macro_name}(VAR) ' \
            'VAR.tv_nsec = {nanoseconds}; ' \
            'VAR.tv_sec = {seconds};' \
-           .format(macro_name=macro_name,
-                   nanoseconds=frame_sleep_nanoseconds,
-                   seconds=frame_sleep_seconds)
+        .format(macro_name=macro_name,
+                nanoseconds=frame_sleep_nanoseconds,
+                seconds=frame_sleep_seconds)
 
 
 def yield_paths_from_stdin():
@@ -447,22 +446,22 @@ def yield_paths_from_stdin():
 
 def main():
     args = arg_parser.parse_known_args()
-    
+
     try:
         _ = subprocess.check_output(['which', 'jp2a'])
     except:
         print('Cannot find the jp2a command, please install jp2a.  Info: https://csl.name/jp2a/', file=sys.stderr)
         exit(1)
-    
+
     try:
         _ = subprocess.check_output(['which', 'convert'])
     except:
         print('Cannot find ImageMagick\'s "convert" command, please install ImageMagick.', file=sys.stderr)
         exit(1)
-   
+
     jp2a_args = args[1]
     args = args[0]
-    
+
     try:
         _ = subprocess.check_output(['which', args.compiler])
     except:
@@ -572,7 +571,7 @@ def main():
                 compiler_cmd + ['-lcurses', '-lrt'],
                 stderr=subprocess.STDOUT,
                 stdout=compiler_output.file
-                )
+            )
 
         except subprocess.CalledProcessError:
             # try without librealtime
