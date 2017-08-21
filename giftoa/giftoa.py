@@ -516,7 +516,7 @@ def main():
         try:
             # try with librealtime
 
-            print("Compiling with -lrt...",
+            print("Compiling with -lrt (librealtime) ...",
                   file=compiler_output.file, flush=True)
 
             subprocess.check_call(
@@ -528,7 +528,7 @@ def main():
         except subprocess.CalledProcessError:
             # try without librealtime
 
-            print("Compiling without -lrt...",
+            print("Compiling without -lrt (librealtime) ...",
                   file=compiler_output.file, flush=True)
 
             compiler_rt_code = subprocess.call(
